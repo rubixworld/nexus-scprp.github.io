@@ -264,23 +264,20 @@ function renderHome(container) {
 
 function renderRulesDiscord(container) {
     const sectionsHTML = DISCORD_RULES.map(sec => {
-        const rulesHTML = sec.rules.map(r => {
-            const numHTML = r.n ? `<div class="rule-num">${r.n}</div>` : '';
-            let content = `<div class="rule-text">${r.t}`;
-            if (r.sub) content += `<span class="rules-sub-title">${r.sub}</span>`;
-            if (r.list) {
-                content += '<ul class="rule-list">' + r.list.map(li => `<li>${li}</li>`).join('') + '</ul>';
-            }
-            if (r.links) {
-                content += '<div class="rules-links">' + r.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener">📖 ${l.label}</a>`).join('') + '</div>';
-            }
-            content += '</div>';
-            const warn = r.warning ? `<div class="rule-warning">⚠ ${r.t}</div>` : '';
-            if (r.warning) {
-                return `<div class="rule-item">${numHTML}<div class="rule-text" style="display:none"></div></div>${warn}`;
-            }
-            return `<div class="rule-item">${numHTML}${content}</div>`;
-        }).join('');
+const rulesHTML = sec.rules.map(r => {
+    const numHTML = r.n ? `<div class="rule-num">${r.n}</div>` : '';
+    let content = `<div class="rule-text">${r.t}`;
+    if (r.sub) content += `<span class="rules-sub-title">${r.sub}</span>`;
+    if (r.list) {
+        content += '<ul class="rule-list">' + r.list.map(li => `<li>${li}</li>`).join('') + '</ul>';
+    }
+    if (r.links) {
+        content += '<div class="rules-links">' + r.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener">📖 ${l.label}</a>`).join('') + '</div>';
+    }
+    content += '</div>';
+    const warn = r.warning ? `<div class="rule-warning" style="margin-left: 0; margin-top: 8px;">⚠ ${r.t}</div>` : '';
+    return `<div class="rule-item">${numHTML}${content}${warn}</div>`;
+}).join('');
 
         return `
             <div class="rules-section">
