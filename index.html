@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus • SCP-RP Terminal</title>
+    <!-- Шрифты -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Твой фавикон (замени путь на свой) -->
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+
+    <!-- Сайдбар (Навигация) -->
+    <aside class="sidebar" id="sidebar">
+        <div class="brand" onclick="window.location.hash = '#/home'">
+            <div class="brand-logo">
+                <!-- Твой бейдж (замени путь на свой) -->
+                <img src="badge.png" alt="Nexus Logo" onerror="this.style.display='none'">
+                <span class="brand-text">NEXUS</span>
+            </div>
+            <div class="brand-sub">SCP-RP SYSTEM</div>
+        </div>
+
+        <nav class="nav-menu">
+            <a href="#/home" class="nav-link" data-page="home">> ГЛАВНАЯ</a>
+            
+            <div class="nav-group-title">// ДОКУМЕНТАЦИЯ</div>
+            <a href="#/rules-discord" class="nav-link" data-page="rules-discord">> Правила Discord</a>
+            <a href="#/rules-rp" class="nav-link" data-page="rules-rp">> Правила отыгровки</a>
+            <a href="#/rules-admin" class="nav-link" data-page="rules-admin">> Правила администрации</a>
+            
+            <div class="nav-group-title">// ПЕРСОНАЛ</div>
+            <a href="#/management" class="nav-link" data-page="management">> Руководство</a>
+            <a href="#/staff" class="nav-link" data-page="staff">> Список персонала</a>
+            <a href="#/roles" class="nav-link" data-page="roles">> Роли проекта</a>
+            
+            <div class="nav-group-title">// СИСТЕМА</div>
+            <a href="#/download" class="nav-link" data-page="download">> Скачать лаунчер</a>
+            <a href="#/about" class="nav-link" data-page="about">> О нас / Связь</a>
+            
+            <!-- Админка (скрыта для обычных юзеров, откроется через JS) -->
+            <a href="#/admin" class="nav-link admin-link" id="adminNavLink" style="display:none; color: var(--scp-red);">> [ADMIN] Панель</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="status-dot"></div> STATUS: ONLINE <br>
+            <span class="muted">VER: 1.20.1 FORGE</span>
+        </div>
+    </aside>
+
+    <!-- Основной контент -->
+    <main class="main-content">
+        <!-- Шапка -->
+        <header class="topbar">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+            <div class="topbar-info">
+                <span class="mono">[ NODE: NEXUS-01 ]</span>
+                <span class="mono">[ SECURITY: LEVEL-4 ]</span>
+            </div>
+            <a href="#/download" class="btn btn-outline">СКАЧАТЬ ЛАУНЧЕР</a>
+        </header>
+
+        <!-- Контейнер для страниц -->
+        <div id="app-content" class="content-wrapper">
+            <!-- Сюда JS будет рендерить страницы -->
+        </div>
+    </main>
+
+    <!-- Модальное окно авторизации -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>> ACCESS TERMINAL</h3>
+                <button class="close-btn" onclick="closeModal('loginModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <p class="mono muted" style="margin-bottom: 15px;">Требуется уровень допуска 4.</p>
+                <input type="text" id="loginUser" class="input-field" placeholder="LOGIN (admin)" autocomplete="off">
+                <input type="password" id="loginPass" class="input-field" placeholder="PASSWORD (admin)" autocomplete="off">
+                <div id="loginError" class="error-msg"></div>
+                <button class="btn btn-primary w-100 mt-15" onclick="doLogin()">ВОЙТИ В СИСТЕМУ</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
