@@ -438,17 +438,17 @@ function renderAbout(container) {
             <p>Nexus • SCP-RP — это проект, созданный энтузиастами для глубокой и атмосферной ролевой игры по вселенной SCP в Minecraft. Мы ценим качественный отыгрыш, дисциплину и дружелюбное комьюнити.</p>
         </div>
         <div class="grid-3">
-            <a href="https://discord.gg/твой_инвайт" target="_blank" class="panel" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px;">
+            <a href="https://dsc.gg/nexus-scprp" target="_blank" class="panel" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px;">
                 <img src="icon-discord.png" alt="Discord" style="width: 48px; height: 48px; margin-bottom: 15px; object-fit: contain;">
                 <h3 style="color: #fff; margin-bottom: 5px;">Discord</h3>
                 <p class="mono muted" style="margin: 0;">Основной хаб</p>
             </a>
-            <a href="https://t.me/твой_канал" target="_blank" class="panel" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px;">
+            <a href="https://https://t.me/scprp_site17" target="_blank" class="panel" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px;">
                 <img src="icon-telegram.png" alt="Telegram" style="width: 48px; height: 48px; margin-bottom: 15px; object-fit: contain;">
                 <h3 style="color: #fff; margin-bottom: 5px;">Telegram</h3>
                 <p class="mono muted" style="margin: 0;">Новости</p>
             </a>
-            <a href="https://vk.com/твоя_группа" target="_blank" class="panel" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px;">
+            <a href="https://vk.com/nexus-scprp" target="_blank" class="panel" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px;">
                 <img src="icon-vk.png" alt="ВКонтакте" style="width: 48px; height: 48px; margin-bottom: 15px; object-fit: contain;">
                 <h3 style="color: #fff; margin-bottom: 5px;">ВКонтакте</h3>
                 <p class="mono muted" style="margin: 0;">Сообщество</p>
