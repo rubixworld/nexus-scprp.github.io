@@ -1,17 +1,15 @@
 // ==========================================
-// КОНФИГУРАЦИЯ (Под будущий Supabase)
+// КОНФИГУРАЦИЯ
 // ==========================================
 const CONFIG = {
-    // Сюда потом вставим ключи Supabase
     SUPABASE_URL: '', 
     SUPABASE_KEY: '',
-    // Временный пароль для админки (потом заменим на Supabase Auth)
     ADMIN_LOGIN: 'admin',
     ADMIN_PASS: 'admin'
 };
 
 // ==========================================
-// БАЗА ДАННЫХ (Заглушки, позже переедет в Supabase)
+// БАЗА ДАННЫХ (Заглушки)
 // ==========================================
 let DB = {
     news: JSON.parse(localStorage.getItem('nexus_news')) || [
@@ -22,6 +20,11 @@ let DB = {
             content: 'Добро пожаловать на официальный портал проекта Nexus • SCP-RP. Мы начинаем открытое тестирование. Следите за обновлениями.'
         }
     ],
+    hosting: JSON.parse(localStorage.getItem('nexus_hosting')) || {
+        serverStatus: 'ONLINE',   // ONLINE / OFFLINE / MAINTENANCE
+        hostingStatus: 'NORMAL',  // NORMAL / PAYMENT / UNPAID / PROBLEMS / MAINTENANCE
+        version: '1.20.1 FORGE'
+    },
     staff: {
         management: [
             { role: 'Основатель', name: 'Founder_Name' },
@@ -36,8 +39,91 @@ let DB = {
     }
 };
 
+function saveHosting() {
+    localStorage.setItem('nexus_hosting', JSON.stringify(DB.hosting));
+}
+
 // ==========================================
-// РОУТЕР (Навигация)
+// ЛОГИКА МОНИТОРА (зависит от 2 статусов)
+// ==========================================
+function getMonitorState() {
+    const s = DB.hosting.serverStatus;
+    const h = DB.hosting.hostingStatus;
+
+    // Приоритет: критичные ошибки -> предупреждения -> норма
+    if (h === 'UNPAID') {
+        return { color: 'var(--scp-red)', label: 'HOSTING_UNPAID', code:
+            '<span class="c-hash"># [CRITICAL]</span>\n<span class="c-key">server:</span> <span class="c-val">' + s + '</span>\n<span class="c-key">hosting:</span> <span class="c-val">UNPAID</span>\n<span class="c-key">action:</span> <span class="c-val">CONTACT_ADMIN</span>' };
+    }
+    if (h === 'PROBLEMS') {
+        return { color: '#FF8C42', label: 'HOSTING_PROBLEMS', code:
+            '<span class="c-hash"># [ERROR]</span>\n<span class="c-key">server:</span> <span class="c-val">' + s + '</span>\n<span class="c-key">hosting:</span> <span class="c-val">DEGRADED</span>\n<span class="c-key">status:</span> <span class="c-val">DIAGNOSTICS</span>' };
+    }
+    if (s === 'OFFLINE') {
+        return { color: 'var(--scp-red)', label: 'SERVER_OFFLINE', code:
+            '<span class="c-hash"># [OFFLINE]</span>\n<span class="c-key">server:</span> <span class="c-val">OFFLINE</span>\n<span class="c-key">hosting:</span> <span class="c-val">' + h + '</span>\n<span class="c-key">action:</span> <span class="c-val">WAIT_PLEASE</span>' };
+    }
+    if (h === 'PAYMENT') {
+        return { color: 'var(--scp-yellow)', label: 'PAYMENT_PERIOD', code:
+            '<span class="c-hash"># [WARNING]</span>\n<span class="c-key">server:</span> <span class="c-val">' + s + '</span>\n<span class="c-key">hosting:</span> <span class="c-val">PAYMENT_DUE</span>\n<span class="c-key">note:</span> <span class="c-val">RENEW_SOON</span>' };
+    }
+    if (s === 'MAINTENANCE' || h === 'MAINTENANCE') {
+        return { color: 'var(--scp-yellow)', label: 'MAINTENANCE', code:
+            '<span class="c-hash"># [MAINTENANCE]</span>\n<span class="c-key">server:</span> <span class="c-val">' + s + '</span>\n<span class="c-key">hosting:</span> <span class="c-val">' + h + '</span>\n<span class="c-key">eta:</span> <span class="c-val">~30_MIN</span>' };
+    }
+    return { color: 'var(--scp-green)', label: 'SYSTEM_NOMINAL', code:
+        '<span class="c-hash"># [NOMINAL]</span>\n<span class="c-key">server:</span> <span class="c-val">ONLINE</span>\n<span class="c-key">hosting:</span> <span class="c-val">ACTIVE</span>\n<span class="c-key">uptime:</span> <span class="c-val">99.9%</span>' };
+}
+
+function renderMonitor() {
+    const state = getMonitorState();
+    return `
+        <div class="server-monitor" style="--monitor-color: ${state.color};">
+            <span class="monitor-corner mc-tl"></span>
+            <span class="monitor-corner mc-tr"></span>
+            <span class="monitor-corner mc-bl"></span>
+            <span class="monitor-corner mc-br"></span>
+
+            <div class="monitor-head">
+                <span class="mono">NEXUS_NETWORK</span>
+                <span class="mono live-indicator"><span class="live-dot"></span>LIVE</span>
+            </div>
+
+            <div class="monitor-body">
+                <div class="pulse-wrap">
+                    <div class="pulse-ring"></div>
+                    <div class="pulse-dot"></div>
+                </div>
+                <div class="monitor-label mono">${state.label}</div>
+                <div class="monitor-code mono">${state.code}</div>
+            </div>
+
+            <div class="monitor-stats">
+                <div class="mstat">
+                    <div class="mk mono">Server</div>
+                    <div class="mv">${DB.hosting.serverStatus}</div>
+                </div>
+                <div class="mstat">
+                    <div class="mk mono">Version</div>
+                    <div class="mv">${DB.hosting.version}</div>
+                </div>
+                <div class="mstat">
+                    <div class="mk mono">Access</div>
+                    <div class="mv">PUBLIC</div>
+                </div>
+            </div>
+
+            <div class="monitor-foot mono">
+                <span>SECURE_CHANNEL</span>
+                <span>///</span>
+                <span>OK</span>
+            </div>
+        </div>
+    `;
+}
+
+// ==========================================
+// РОУТЕР
 // ==========================================
 const routes = {
     '/home': renderHome,
@@ -56,17 +142,14 @@ function router() {
     let hash = window.location.hash.replace('#', '') || '/home';
     if (!routes[hash]) hash = '/home';
     
-    // Обновляем активный класс в меню
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.toggle('active', link.getAttribute('href') === '#' + hash);
     });
 
-    // Рендерим страницу
     const content = document.getElementById('app-content');
     content.innerHTML = '';
     routes[hash](content);
     
-    // Закрываем сайдбар на мобилке после перехода
     if(window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
 }
 
@@ -78,9 +161,8 @@ function toggleSidebar() {
 }
 
 // ==========================================
-// РЕНДЕР СТРАНИЦ
+// СТРАНИЦЫ
 // ==========================================
-
 function renderHome(container) {
     const newsHTML = DB.news.map(n => `
         <div class="news-item">
@@ -91,13 +173,18 @@ function renderHome(container) {
     `).join('');
 
     container.innerHTML = `
-        <div class="panel mb-20" style="background: linear-gradient(180deg, rgba(88,153,249,0.1) 0%, transparent 100%); border-top: 2px solid var(--accent-start);">
-            <h1 style="font-size: 2.5rem; margin-bottom: 10px;">NEXUS • SCP-RP</h1>
-            <p class="mono" style="color: var(--accent-start); margin-bottom: 20px;">> ДОБРО ПОЖАЛОВАТЬ В ТЕРМИНАЛ ФОНДА</p>
-            <p>Официальный портал ролевого проекта по вселенной SCP в Minecraft 1.20.1 Forge. Ознакомьтесь с документацией, правилами и списком персонала перед началом игры.</p>
-            <div style="margin-top: 20px; display: flex; gap: 10px;">
-                <a href="#/rules-rp" class="btn btn-outline">ПРАВИЛА RP</a>
-                <a href="#/download" class="btn btn-primary">ИГРАТЬ</a>
+        <div class="grid-2 mb-20" style="gap: 30px; align-items: stretch;">
+            <div class="panel" style="background: linear-gradient(180deg, rgba(88,153,249,0.1) 0%, transparent 100%); border-top: 2px solid var(--accent-start); display: flex; flex-direction: column; justify-content: center;">
+                <h1 style="font-size: 2.5rem; margin-bottom: 10px;">NEXUS • SCP-RP</h1>
+                <p class="mono" style="color: var(--accent-start); margin-bottom: 20px;">> ДОБРО ПОЖАЛОВАТЬ В ТЕРМИНАЛ ФОНДА</p>
+                <p>Официальный портал ролевого проекта по вселенной SCP в Minecraft 1.20.1 Forge. Ознакомьтесь с документацией, правилами и списком персонала перед началом игры.</p>
+                <div style="margin-top: 25px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="#/rules-rp" class="btn btn-outline">ПРАВИЛА RP</a>
+                    <a href="#/download" class="btn btn-primary">СКАЧАТЬ ЛАУНЧЕР</a>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center;">
+                ${renderMonitor()}
             </div>
         </div>
 
@@ -158,7 +245,7 @@ function renderRulesRP(container) {
         <div class="panel">
             <h2>1. Основы Roleplay</h2>
             <p>1.1. <b>FearRP</b> — ваш персонаж должен бояться за свою жизнь при угрозе оружием.</p>
-            <p>1.2. <b>FailRP</b> — запрещено совершать действия, невозможные в реальной жизни (например, прыгать с 10 этажа без урона).</p>
+            <p>1.2. <b>FailRP</b> — запрещено совершать действия, невозможные в реальной жизни.</p>
             <p>1.3. <b>PowerGaming</b> — запрещено навязывать действия другим игрокам без отыгровки.</p>
             
             <h2 class="mt-15">2. Персонаж</h2>
@@ -189,9 +276,7 @@ function renderManagement(container) {
 
     container.innerHTML = `
         <h1 class="mb-20">Высшее руководство</h1>
-        <div class="grid-3 mb-20">
-            ${mgmt}
-        </div>
+        <div class="grid-3 mb-20">${mgmt}</div>
     `;
 }
 
@@ -205,9 +290,7 @@ function renderStaff(container) {
 
     container.innerHTML = `
         <h1 class="mb-20">Персонал проекта</h1>
-        <div class="grid-4 mb-20">
-            ${staff}
-        </div>
+        <div class="grid-4 mb-20">${staff}</div>
         <p class="mono muted text-center">* Список обновляется вручную руководством.</p>
     `;
 }
@@ -236,7 +319,7 @@ function renderDownload(container) {
                 <div>
                     <h2>Версия 1.0.0</h2>
                     <p>Дата обновления: 24.10.2026</p>
-                    <p>В сборку входит: Minecraft 1.20.1 Forge, моды на SCP (модели, механики), оптимизация, русификатор.</p>
+                    <p>Сборка: Minecraft 1.20.1 Forge, моды на SCP, оптимизация, русификатор.</p>
                     <br>
                     <a href="#" class="btn btn-primary" onclick="alert('Ссылка на скачивание появится позже')">СКАЧАТЬ (Windows)</a>
                 </div>
@@ -282,9 +365,8 @@ function renderAbout(container) {
 }
 
 // ==========================================
-// АДМИНКА (Вход и Панель)
+// АДМИНКА
 // ==========================================
-
 function isAdmin() {
     return sessionStorage.getItem('nexus_admin') === 'true';
 }
@@ -306,11 +388,33 @@ function renderAdmin(container) {
         </div>
     `).join('');
 
+    const s = DB.hosting.serverStatus;
+    const h = DB.hosting.hostingStatus;
+
     container.innerHTML = `
         <div class="panel mb-20" style="border-left: 3px solid var(--scp-red);">
             <h1 style="color: var(--scp-red);">ADMIN CONTROL PANEL</h1>
             <p class="mono">> STATUS: ACCESS GRANTED</p>
             <button class="btn btn-outline mt-15" onclick="logout()">ЗАВЕРШИТЬ СЕАНС</button>
+        </div>
+
+        <!-- МОНИТОР -->
+        <div class="panel mb-20">
+            <h2>// Монитор сервера</h2>
+            <p class="muted mono mb-15">> Статус СЕРВЕРА:</p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
+                <button class="btn btn-outline ${s==='ONLINE'?'active-status':''}" onclick="setServerStatus('ONLINE')">ONLINE</button>
+                <button class="btn btn-outline ${s==='OFFLINE'?'active-status':''}" onclick="setServerStatus('OFFLINE')">OFFLINE</button>
+                <button class="btn btn-outline ${s==='MAINTENANCE'?'active-status':''}" onclick="setServerStatus('MAINTENANCE')">MAINTENANCE</button>
+            </div>
+            <p class="muted mono mb-15">> Статус ХОСТИНГА:</p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-outline ${h==='NORMAL'?'active-status':''}" onclick="setHostingStatus('NORMAL')">NORMAL</button>
+                <button class="btn btn-outline ${h==='PAYMENT'?'active-status':''}" onclick="setHostingStatus('PAYMENT')">PAYMENT</button>
+                <button class="btn btn-outline ${h==='UNPAID'?'active-status':''}" onclick="setHostingStatus('UNPAID')">UNPAID</button>
+                <button class="btn btn-outline ${h==='PROBLEMS'?'active-status':''}" onclick="setHostingStatus('PROBLEMS')">PROBLEMS</button>
+                <button class="btn btn-outline ${h==='MAINTENANCE'?'active-status':''}" onclick="setHostingStatus('MAINTENANCE')">MAINTENANCE</button>
+            </div>
         </div>
 
         <div class="grid-2">
@@ -328,7 +432,20 @@ function renderAdmin(container) {
     `;
 }
 
-// Логика входа
+function setServerStatus(status) {
+    DB.hosting.serverStatus = status;
+    saveHosting();
+    renderAdmin(document.getElementById('app-content'));
+}
+function setHostingStatus(status) {
+    DB.hosting.hostingStatus = status;
+    saveHosting();
+    renderAdmin(document.getElementById('app-content'));
+}
+
+// ==========================================
+// АВТОРИЗАЦИЯ
+// ==========================================
 function doLogin() {
     const user = document.getElementById('loginUser').value;
     const pass = document.getElementById('loginPass').value;
@@ -353,7 +470,9 @@ function logout() {
     router();
 }
 
-// Логика новостей
+// ==========================================
+// НОВОСТИ
+// ==========================================
 function createNews() {
     const title = document.getElementById('newsTitle').value;
     const content = document.getElementById('newsContent').value;
@@ -368,7 +487,7 @@ function createNews() {
     
     localStorage.setItem('nexus_news', JSON.stringify(DB.news));
     renderAdmin(document.getElementById('app-content'));
-    alert('Новость опубликована! (Сохранено в localStorage)');
+    alert('Новость опубликована!');
 }
 
 function deleteNews(id) {
@@ -379,25 +498,19 @@ function deleteNews(id) {
 }
 
 // ==========================================
-// СЕКРЕТНЫЙ ВХОД В АДМИНКУ
+// МОДАЛКИ И СЕКРЕТНЫЙ ВХОД
 // ==========================================
-// Зажимаем Ctrl + Shift и кликаем на логотип "NEXUS" в сайдбаре
 document.querySelector('.brand').addEventListener('click', function(e) {
     if (e.ctrlKey && e.shiftKey) {
         e.preventDefault();
-        if (isAdmin()) {
-            window.location.hash = '#/admin';
-        } else {
-            openModal('loginModal');
-        }
+        if (isAdmin()) window.location.hash = '#/admin';
+        else openModal('loginModal');
     }
 });
 
-// При загрузке проверяем, не залогинен ли уже админ
 if (isAdmin()) {
     document.getElementById('adminNavLink').style.display = 'block';
 }
 
-// Модалки
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
