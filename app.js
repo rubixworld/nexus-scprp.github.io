@@ -2,10 +2,10 @@
 // КОНФИГУРАЦИЯ
 // ==========================================
 const CONFIG = {
-    SUPABASE_URL: '',
+    SUPABASE_URL: '', 
     SUPABASE_KEY: '',
-    ADMIN_LOGIN: 'admin',
-    ADMIN_PASS: 'admin'
+    ADMIN_LOGIN: 'nexus-scprp',
+    ADMIN_PASS: 'nexus-password-scprp'
 };
 
 // ==========================================
