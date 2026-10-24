@@ -201,6 +201,7 @@ function router() {
     content.innerHTML = '';
     routes[hash](content);
     if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
+    initMouseGlow();
 }
 
 window.addEventListener('hashchange', router);
@@ -604,3 +605,24 @@ if (isAdmin()) {
 
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+// ==========================================
+// ЭФФЕКТ ФОНАРИКА (Mouse Glow)
+// ==========================================
+function initMouseGlow() {
+    // Находим все панели и карточки, которым нужен эффект
+    const glowElements = document.querySelectorAll('.panel, .mgmt-card, .news-item, .staff-row');
+    
+    glowElements.forEach(el => {
+        el.classList.add('mouse-glow'); // добавляем класс для CSS
+        
+        el.addEventListener('mousemove', (e) => {
+            const rect = el.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            el.style.setProperty('--mouse-x', `${x}px`);
+            el.style.setProperty('--mouse-y', `${y}px`);
+        });
+    });
+}
