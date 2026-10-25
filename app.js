@@ -9,7 +9,7 @@ const CONFIG = {
 };
 
 // ==========================================
-// БАЗА ДАННЫХ (Заглушка под Supabase)
+// БАЗА ДАННЫХ
 // ==========================================
 let DB = {
     news: JSON.parse(localStorage.getItem('nexus_news')) || [
@@ -28,23 +28,7 @@ let DB = {
         maintMsg: 'Сервер находится на обновлении. Пожалуйста, зайдите позже.',
         serverStatus: 'ONLINE',
         hostingStatus: 'NORMAL'
-    },
-    staff: [
-        { num: 14, section: 'high', role: 'Основатель проекта', name: 'Sayderty', tag: 'FOUNDER', level: 'LEVEL-5' },
-        { num: 13, section: 'high', role: 'Руководитель проекта', name: 'dark_esz', tag: 'MANAGER', level: 'LEVEL-5' },
-        { num: 12, section: 'high', role: 'Куратор', name: 'NewStalker3041', tag: 'CURATOR', level: 'LEVEL-4' },
-        { num: 11, section: 'admin', role: 'Главный администратор', name: null },
-        { num: 10, section: 'admin', role: 'Старший администратор', name: null },
-        { num: 9, section: 'admin', role: 'Администратор', name: null },
-        { num: 8, section: 'admin', role: 'Младший администратор', name: 'GeoMatrixi' },
-        { num: 7, section: 'mod', role: 'Главный модератор', name: null },
-        { num: 6, section: 'mod', role: 'Старший модератор', name: null },
-        { num: 5, section: 'mod', role: 'Модератор', name: null },
-        { num: 4, section: 'mod', role: 'Младший модератор', name: 'Iskatel_Misteki3' },
-        { num: 3, section: 'trainee', role: 'Стажёр', name: null },
-        { num: 2, section: 'builder', role: 'Главный билдер', name: null },
-        { num: 1, section: 'builder', role: 'Билдер', name: null }
-    ]
+    }
 };
 
 function saveData() {
@@ -52,20 +36,112 @@ function saveData() {
     localStorage.setItem('nexus_settings', JSON.stringify(DB.settings));
 }
 
+// Защита от ошибок (проверяем, существует ли элемент перед изменением)
 function applySettings() {
-    document.getElementById('mon-ip').textContent = DB.settings.ip;
-    document.getElementById('mon-ver').textContent = DB.settings.version;
-    document.getElementById('mntMessage').textContent = DB.settings.maintMsg;
+    const monIp = document.getElementById('mon-ip');
+    if (monIp) monIp.textContent = DB.settings.ip;
     
-    // Тех. работы
+    const monVer = document.getElementById('mon-ver');
+    if (monVer) monVer.textContent = DB.settings.version;
+    
+    const mntMsg = document.getElementById('mntMessage');
+    if (mntMsg) mntMsg.textContent = DB.settings.maintMsg;
+    
     const mnt = document.getElementById('maintenance');
     const isAdmin = sessionStorage.getItem('nexus_admin') === 'true';
-    if (DB.settings.maintenance && !isAdmin) {
-        mnt.classList.add('show');
-    } else {
-        mnt.classList.remove('show');
+    if (mnt) {
+        if (DB.settings.maintenance && !isAdmin) {
+            mnt.classList.add('show');
+        } else {
+            mnt.classList.remove('show');
+        }
     }
 }
+
+// ==========================================
+// ПЕРСОНАЛ И ПРАВИЛА (Данные)
+// ==========================================
+const STAFF_LIST = [
+    { num: 14, section: 'high', role: 'Основатель проекта', name: 'Sayderty', tag: 'FOUNDER', level: 'LEVEL-5' },
+    { num: 13, section: 'high', role: 'Руководитель проекта', name: 'dark_esz', tag: 'MANAGER', level: 'LEVEL-5' },
+    { num: 12, section: 'high', role: 'Куратор', name: 'NewStalker3041', tag: 'CURATOR', level: 'LEVEL-4' },
+    { num: 11, section: 'admin', role: 'Главный администратор', name: null },
+    { num: 10, section: 'admin', role: 'Старший администратор', name: null },
+    { num: 9, section: 'admin', role: 'Администратор', name: null },
+    { num: 8, section: 'admin', role: 'Младший администратор', name: 'GeoMatrixi' },
+    { num: 7, section: 'mod', role: 'Главный модератор', name: null },
+    { num: 6, section: 'mod', role: 'Старший модератор', name: null },
+    { num: 5, section: 'mod', role: 'Модератор', name: null },
+    { num: 4, section: 'mod', role: 'Младший модератор', name: 'Iskatel_Misteki3' },
+    { num: 3, section: 'trainee', role: 'Стажёр', name: null },
+    { num: 2, section: 'builder', role: 'Главный билдер', name: null },
+    { num: 1, section: 'builder', role: 'Билдер', name: null }
+];
+
+const STAFF_SECTIONS = {
+    high:    { title: 'Высшее руководство', icon: '👑', class: 'high' },
+    admin:   { title: 'Администрация', icon: '⚙️', class: '' },
+    mod:     { title: 'Модерация', icon: '🛡️', class: '' },
+    trainee: { title: 'Стажёры', icon: '📋', class: '' },
+    builder: { title: 'Билдерский отдел', icon: '🔨', class: '' }
+};
+
+const DISCORD_RULES = [
+    { num: 'I', icon: '🌐', title: 'Общие положения', rules: [
+        { n: '1.1', t: 'Незнание правил не освобождает от ответственности.' },
+        { n: '1.2', t: 'Администрация вправе принимать решения в нестандартных ситуациях, которые прямо не описаны в правилах, если действия пользователя нарушают порядок или вредят сообществу.' },
+        { n: '1.3', t: 'Попытка обойти правила, используя лазейки или буквальное толкование текста, рассматривается как нарушение.' },
+        { n: '1.4', t: 'Все решения администрации должны быть аргументированы и соответствовать данным правилам.' },
+        { n: '1.5', t: 'Оскорбления, угрозы или давление на администрацию с целью изменения наказания запрещены.' }
+    ]},
+    { num: 'II', icon: '💬', title: 'Общение', rules: [
+        { n: '2.1', t: 'Запрещены любые формы оскорблений, унижения достоинства, травли (буллинга), преследования или дискриминации.' },
+        { n: '2.2', t: 'Запрещено разжигание конфликтов, провокации, токсичное поведение и намеренное создание негативной атмосферы.' },
+        { n: '2.3', t: 'Спам запрещён. К спаму относится:', list: ['повторение одинаковых сообщений', 'чрезмерное использование эмодзи', 'флуд бессмысленными сообщениями', 'массовое упоминание участников или ролей'] },
+        { n: '2.4', t: 'Запрещено злоупотребление CAPS LOCK.' },
+        { n: '2.5', t: 'Использование нецензурной лексики допускается только в разумных пределах и если она не направлена на унижение участников.' },
+        { n: '2.6', t: 'Любые обсуждения политики, религии или иных потенциально конфликтных тем допускаются исключительно в специально предназначенных для этого каналах (если такие существуют).' }
+    ]},
+    { num: 'III', icon: '🛡️', title: 'Безопасность', rules: [
+        { n: '3.1', t: 'Запрещено публиковать вредоносные ссылки, вирусы, IP-логгеры, фишинговые сайты и любое вредоносное ПО.' },
+        { n: '3.2', t: 'Запрещено выдавать себя за администрацию, разработчиков проекта или сотрудников Discord.' },
+        { n: '3.3', t: 'Запрещено распространять личную информацию других пользователей без их согласия.' },
+        { n: '3.4', t: 'Любые попытки мошенничества, обмана, продажи аккаунтов или внутриигровых ценностей вне разрешённых администрацией способов запрещены.' }
+    ]},
+    { num: 'IV', icon: '📢', title: 'Контент', rules: [
+        { n: '4.1', t: 'Любой публикуемый контент должен соответствовать Discord ToS и Community Guidelines.', sub: 'Запрещается публикация:', list: ['порнографических материалов', 'сцен реального насилия', 'материалов с участием несовершеннолетних', 'экстремистского контента', 'вредоносного ПО', 'незаконных материалов'] },
+        { n: '4.2', t: 'NSFW-контент запрещён.' },
+        { n: '4.3', t: 'Запрещено распространять материалы, нарушающие авторские права.' }
+    ]},
+    { num: 'V', icon: '📣', title: 'Реклама', rules: [
+        { n: '5.1', t: 'Любая реклама сторонних Discord-серверов, проектов, Telegram-каналов, YouTube-каналов или иных ресурсов запрещена без разрешения администрации.' },
+        { n: '5.2', t: 'Запрещена скрытая реклама через личные сообщения пользователям сервера.' }
+    ]},
+    { num: 'VI', icon: '🎭', title: 'Никнеймы и профили', rules: [
+        { n: '6.1', t: 'Никнеймы и аватары не должны:', list: ['нарушать Discord ToS', 'содержать оскорбления', 'вводить пользователей в заблуждение', 'копировать администрацию'] },
+        { n: '6.2', t: 'Администрация вправе потребовать изменить никнейм или аватар.' }
+    ]},
+    { num: 'VII', icon: '🎙️', title: 'Голосовые каналы', rules: [
+        { n: '7.1', t: 'Запрещается:', list: ['шуметь', 'включать громкую музыку', 'использовать саундпады для помех', 'намеренно перебивать других пользователей'] },
+        { n: '7.2', t: 'Запрещено заходить в голосовые каналы исключительно для создания помех.' }
+    ]},
+    { num: 'VIII', icon: '⛑️', title: 'Администрация', rules: [
+        { n: '8.1', t: 'Администрация обязана соблюдать данные правила наравне с обычными пользователями.' },
+        { n: '8.2', t: 'Администрация вправе применять наказание за действия, прямо не указанные в правилах, если они очевидно нарушают порядок сервера или Discord ToS.' },
+        { n: '8.3', t: 'Злоупотребление полномочиями сотрудником администрации рассматривается отдельно руководством проекта.' }
+    ]},
+    { num: 'IX', icon: '⚖️', title: 'Наказания', rules: [
+        { t: 'В зависимости от тяжести нарушения могут применяться:', list: ['Устное предупреждение', 'Официальное предупреждение', 'Мут', 'Временный бан', 'Перманентный бан'] },
+        { t: 'При грубых нарушениях наказание может быть выдано сразу, без предварительных предупреждений.', warning: true }
+    ]},
+    { num: 'X', icon: '📜', title: 'Discord Terms of Service', rules: [
+        { t: 'На сервере в обязательном порядке действуют:', links: [
+            { label: "Discord's Terms of Service", url: 'https://discord.com/terms' },
+            { label: 'Discord Community Guidelines', url: 'https://discord.com/guidelines' }
+        ]},
+        { t: 'Любое нарушение данных документов считается нарушением правил сервера независимо от того, указано ли оно отдельно выше.' }
+    ]}
+];
 
 // ==========================================
 // МОНИТОР
@@ -120,20 +196,24 @@ const routes = {
 function router() {
     let hash = window.location.hash.replace('#', '') || '/home';
     if (!routes[hash]) hash = '/home';
+    
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.toggle('active', link.getAttribute('href') === '#' + hash);
     });
-    const content = document.getElementById('app-content');
-    content.innerHTML = '';
-    routes[hash](content);
-    if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
     
+    const content = document.getElementById('app-content');
+    if (content) {
+        content.innerHTML = '';
+        routes[hash](content);
+    }
+    
+    if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
     applySettings();
     initMouseGlow(); 
 }
 
 window.addEventListener('hashchange', router);
-window.addEventListener('load', () => { router(); initMouseGlow(); });
+window.addEventListener('load', () => { router(); });
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
 // ==========================================
@@ -169,7 +249,176 @@ function renderHome(container) {
     `;
 }
 
-// ... (Остальные страницы: rules-discord, rules-rp, rules-admin, management, staff, roles, download, about - оставляем без изменений, они уже есть у тебя)
+function renderRulesDiscord(container) {
+    const sectionsHTML = DISCORD_RULES.map(sec => {
+        const rulesHTML = sec.rules.map(r => {
+            const numHTML = r.n ? `<div class="rule-num">${r.n}</div>` : '';
+            let content = `<div class="rule-text">${r.t}`;
+            if (r.sub) content += `<span class="rules-sub-title">${r.sub}</span>`;
+            if (r.list) content += '<ul class="rule-list">' + r.list.map(li => `<li>${li}</li>`).join('') + '</ul>';
+            if (r.links) content += '<div class="rules-links">' + r.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener">📖 ${l.label}</a>`).join('') + '</div>';
+            content += '</div>';
+            const warn = r.warning ? `<div class="rule-warning" style="margin-left: 0; margin-top: 8px;">⚠ ${r.t}</div>` : '';
+            return `<div class="rule-item">${numHTML}${content}${warn}</div>`;
+        }).join('');
+
+        return `
+            <div class="rules-section">
+                <div class="rules-section-header">
+                    <span class="rules-section-icon">${sec.icon}</span>
+                    <span class="rules-section-num">${sec.num}</span>
+                    <span class="rules-section-title">${sec.title}</span>
+                </div>
+                <div class="rules-body">${rulesHTML}</div>
+            </div>
+        `;
+    }).join('');
+
+    container.innerHTML = `
+        <h1 class="mb-20">Правила Discord</h1>
+        <div class="rules-intro">
+            ⚖️ <strong>Добро пожаловать.</strong> Находясь на сервере, вы автоматически подтверждаете, что ознакомились с настоящими правилами и обязуетесь соблюдать как их, так и <a href="https://discord.com/guidelines" target="_blank" rel="noopener">Правила сообщества</a> и <a href="https://discord.com/terms" target="_blank" rel="noopener">Условия использования</a> Discord.
+        </div>
+        ${sectionsHTML}
+        <div class="rules-footer">⚠️ Главная цель правил — обеспечить <strong>комфортное, безопасное и дружелюбное</strong> сообщество для всех участников проекта <strong>Nexus • SCP-RP</strong>.</div>
+    `;
+}
+
+function renderRulesRP(container) {
+    container.innerHTML = `
+        <h1 class="mb-20">Правила отыгровки (RP)</h1>
+        <div class="panel">
+            <h2>1. Основы Roleplay</h2>
+            <p>1.1. <b>FearRP</b> — ваш персонаж должен бояться за свою жизнь при угрозе оружием.</p>
+            <p>1.2. <b>FailRP</b> — запрещено совершать действия, невозможные в реальной жизни.</p>
+            <p>1.3. <b>PowerGaming</b> — запрещено навязывать действия другим игрокам без отыгровки.</p>
+            <h2 class="mt-15">2. Персонаж</h2>
+            <p>2.1. Запрещено использовать ники и скины, нарушающие атмосферу SCP.</p>
+            <p>2.2. Ваш персонаж должен иметь логичную историю и поведение.</p>
+        </div>
+    `;
+}
+
+function renderRulesAdmin(container) {
+    container.innerHTML = `
+        <h1 class="mb-20">Правила администрации</h1>
+        <div class="panel" style="text-align: center; padding: 50px;">
+            <h2 style="border: none; color: var(--scp-yellow);">⚠ РАЗДЕЛ В РАЗРАБОТКЕ ⚠</h2>
+            <p class="mono">Документ находится на стадии утверждения высшим руководством.</p>
+        </div>
+    `;
+}
+
+function renderManagement(container) {
+    const management = STAFF_LIST.filter(s => s.section === 'high');
+    const cardsHTML = management.map(s => `
+        <div class="mgmt-card">
+            <div class="mgmt-level">${s.level}</div>
+            <div class="mgmt-tag">// ${s.tag}</div>
+            <div class="mgmt-role">${s.role}</div>
+            <div class="mgmt-name">${s.name}</div>
+        </div>
+    `).join('');
+
+    container.innerHTML = `
+        <h1 class="mb-20">Руководство проекта</h1>
+        <div class="rules-intro" style="border-left-color: var(--scp-red); background: linear-gradient(90deg, rgba(192,57,43,0.06), transparent);">
+            🔒 <strong>Высший состав Фонда.</strong> Данные сотрудники обладают максимальным уровнем допуска и принимают стратегические решения по развитию проекта.
+        </div>
+        <div class="mgmt-grid">${cardsHTML}</div>
+    `;
+}
+
+function renderStaff(container) {
+    const order = ['high', 'admin', 'mod', 'trainee', 'builder'];
+    const sectionsHTML = order.map(key => {
+        const meta = STAFF_SECTIONS[key];
+        const members = STAFF_LIST.filter(s => s.section === key);
+        if (!members.length) return '';
+        const rowsHTML = members.map(s => `
+            <div class="staff-row">
+                <div class="staff-num">${String(s.num).padStart(2, '0')}</div>
+                <div class="staff-role-name">${s.role}</div>
+                ${s.name ? `<div class="staff-person">${s.name}</div>` : `<div class="staff-vacant">VACANT</div>`}
+            </div>
+        `).join('');
+        return `<div class="staff-section"><div class="staff-section-header ${meta.class}"><span class="icon">${meta.icon}</span><span class="num">//</span><span>${meta.title}</span></div>${rowsHTML}</div>`;
+    }).join('');
+
+    container.innerHTML = `
+        <h1 class="mb-20">Персонал проекта</h1>
+        <div class="rules-intro">📋 <strong>Полный список персонала</strong> проекта Nexus • SCP-RP. Порядок отображения — от высшего к низшему.</div>
+        ${sectionsHTML}
+    `;
+}
+
+function renderRoles(container) {
+    container.innerHTML = `
+        <h1 class="mb-20">Роли проекта</h1>
+        <div class="panel">
+            <h2>// Список ролей (Заглушка)</h2>
+            <p>Описание игровых ролей, классов и уровней допуска появится позже.</p>
+            <ul style="list-style: none; color: var(--text-muted); margin-top: 20px;">
+                <li style="padding: 10px; border-bottom: 1px solid var(--border);">> Класс-D (Расходный материал)</li>
+                <li style="padding: 10px; border-bottom: 1px solid var(--border);">> Научный сотрудник</li>
+                <li style="padding: 10px; border-bottom: 1px solid var(--border);">> Служба безопасности</li>
+                <li style="padding: 10px; border-bottom: 1px solid var(--border);">> МОГ (Мобильная Оперативная Группа)</li>
+            </ul>
+        </div>
+    `;
+}
+
+function renderDownload(container) {
+    container.innerHTML = `
+        <h1 class="mb-20">Скачать лаунчер</h1>
+        <div class="panel">
+            <div class="grid-2">
+                <div>
+                    <h2>Версия 1.0.0</h2>
+                    <p>Дата обновления: 24.10.2026</p>
+                    <p>Сборка: Minecraft 1.20.1 Forge, моды на SCP, оптимизация, русификатор.</p>
+                    <br>
+                    <a href="#" class="btn btn-primary" onclick="alert('Ссылка на скачивание появится позже')">СКАЧАТЬ (Windows)</a>
+                </div>
+                <div style="border-left: 1px solid var(--border); padding-left: 20px;">
+                    <h3>Что добавлено:</h3>
+                    <ul class="mono muted" style="margin-top: 10px; line-height: 1.8;">
+                        <li>- Оптимизация (FPS+)</li>
+                        <li>- Мод SCP: Lockdown</li>
+                        <li>- Кастомные модели оружия</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function renderAbout(container) {
+    container.innerHTML = `
+        <h1 class="mb-20">О нас / Связь</h1>
+        <div class="panel mb-20">
+            <h2>// О проекте</h2>
+            <p>Nexus • SCP-RP — это проект, созданный энтузиастами для глубокой и атмосферной ролевой игры по вселенной SCP в Minecraft.</p>
+        </div>
+        <div class="grid-3">
+            <a href="https://discord.gg/твой_инвайт" target="_blank" class="panel" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px;">
+                <img src="icon-discord.png" alt="Discord" style="width: 48px; height: 48px; margin-bottom: 15px; object-fit: contain;">
+                <h3 style="color: #fff; margin-bottom: 5px;">Discord</h3>
+                <p class="mono muted" style="margin: 0;">Основной хаб</p>
+            </a>
+            <a href="https://t.me/твой_канал" target="_blank" class="panel" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px;">
+                <img src="icon-telegram.png" alt="Telegram" style="width: 48px; height: 48px; margin-bottom: 15px; object-fit: contain;">
+                <h3 style="color: #fff; margin-bottom: 5px;">Telegram</h3>
+                <p class="mono muted" style="margin: 0;">Новости</p>
+            </a>
+            <a href="https://vk.com/твоя_группа" target="_blank" class="panel" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px;">
+                <img src="icon-vk.png" alt="ВКонтакте" style="width: 48px; height: 48px; margin-bottom: 15px; object-fit: contain;">
+                <h3 style="color: #fff; margin-bottom: 5px;">ВКонтакте</h3>
+                <p class="mono muted" style="margin: 0;">Сообщество</p>
+            </a>
+        </div>
+    `;
+}
 
 // ==========================================
 // АДМИНКА
@@ -196,14 +445,13 @@ function renderAdmin(container) {
             <button class="admin-tab" onclick="switchTab('tab-system', this)">Система</button>
         </div>
 
-        <!-- ВКЛАДКА: НОВОСТИ -->
         <div class="admin-section active" id="tab-news">
             <div class="grid-2">
                 <div class="panel">
                     <h2>// Создать новость</h2>
                     <input type="text" id="newsTitle" class="input-field" placeholder="Заголовок">
                     <textarea id="newsContent" class="input-field" placeholder="Текст новости..."></textarea>
-                    <input type="url" id="newsImage" class="input-field" placeholder="Ссылка на картинку (URL, необязательно)">
+                    <input type="url" id="newsImage" class="input-field" placeholder="Ссылка на картинку (URL)">
                     <button class="btn btn-primary" onclick="createNews()">ОПУБЛИКОВАТЬ</button>
                 </div>
                 <div class="panel">
@@ -220,21 +468,13 @@ function renderAdmin(container) {
             </div>
         </div>
 
-        <!-- ВКЛАДКА: НАСТРОЙКИ -->
         <div class="admin-section" id="tab-settings">
             <div class="panel">
                 <h2>// Сервер и Монитор</h2>
                 <div class="grid-2">
-                    <div>
-                        <label class="mono muted">IP Сервера</label>
-                        <input type="text" id="setIp" class="input-field" value="${DB.settings.ip}">
-                    </div>
-                    <div>
-                        <label class="mono muted">Версия (например, 1.20.1 FORGE)</label>
-                        <input type="text" id="setVer" class="input-field" value="${DB.settings.version}">
-                    </div>
+                    <div><label class="mono muted">IP Сервера</label><input type="text" id="setIp" class="input-field" value="${DB.settings.ip}"></div>
+                    <div><label class="mono muted">Версия</label><input type="text" id="setVer" class="input-field" value="${DB.settings.version}"></div>
                 </div>
-                
                 <div class="grid-2 mt-15">
                     <div>
                         <label class="mono muted">Статус СЕРВЕРА</label>
@@ -258,7 +498,6 @@ function renderAdmin(container) {
             </div>
         </div>
 
-        <!-- ВКЛАДКА: СИСТЕМА -->
         <div class="admin-section" id="tab-system">
             <div class="panel">
                 <h2>// Режим технических работ</h2>
@@ -270,10 +509,8 @@ function renderAdmin(container) {
                 <input type="text" id="setMaintMsg" class="input-field" value="${DB.settings.maintMsg}" placeholder="Сообщение на экране">
                 <button class="btn btn-primary mt-15" onclick="saveSettings()">ПРИМЕНИТЬ</button>
             </div>
-
             <div class="panel">
                 <h2>// Бэкап данных</h2>
-                <p class="muted">Скачай JSON файл со всеми новостями и настройками.</p>
                 <button class="btn btn-outline mt-15" onclick="exportData()">📥 ЭКСПОРТ</button>
                 <button class="btn btn-outline mt-15" onclick="document.getElementById('importFile').click()">📤 ИМПОРТ</button>
                 <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
@@ -282,7 +519,6 @@ function renderAdmin(container) {
     `;
 }
 
-// Вспомогательные функции админки
 function switchTab(tabId, btn) {
     document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
@@ -307,7 +543,6 @@ function createNews() {
     const content = document.getElementById('newsContent').value;
     const image = document.getElementById('newsImage').value;
     if (!title || !content) return alert('Заполните текст и заголовок!');
-
     DB.news.unshift({ id: Date.now(), date: new Date().toLocaleDateString('ru-RU'), title, content, image });
     saveData();
     renderAdmin(document.getElementById('app-content'));
@@ -322,7 +557,6 @@ function deleteNews(id) {
     switchTab('tab-news', document.querySelector('.admin-tab'));
 }
 
-// Экспорт / Импорт
 function exportData() {
     const data = { news: DB.news, settings: DB.settings };
     const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
@@ -330,6 +564,7 @@ function exportData() {
     const a = document.createElement('a');
     a.href = url; a.download = 'nexus-backup.json'; a.click();
 }
+
 function importData(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -380,9 +615,19 @@ document.querySelector('.brand').addEventListener('click', function(e) {
     }
 });
 
-if (isAdmin()) document.getElementById('adminNavLink').style.display = 'flex';
-function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+if (isAdmin()) {
+    const adminLink = document.getElementById('adminNavLink');
+    if(adminLink) adminLink.style.display = 'flex';
+}
+
+function openModal(id) { 
+    const m = document.getElementById(id);
+    if(m) m.classList.add('active'); 
+}
+function closeModal(id) { 
+    const m = document.getElementById(id);
+    if(m) m.classList.remove('active'); 
+}
 
 // ==========================================
 // ЭФФЕКТ ФОНАРИКА (Mouse Glow)
