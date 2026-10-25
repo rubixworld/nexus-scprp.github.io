@@ -651,3 +651,37 @@ a.panel:hover img {
     transform: scale(1.1);
     filter: drop-shadow(0 0 10px var(--accent-start));
 }
+
+/* ========================================= */
+/* MAINTENANCE (Тех. работы)                 */
+/* ========================================= */
+.maintenance {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(5, 7, 10, 0.95); backdrop-filter: blur(20px);
+    display: none; align-items: center; justify-content: center;
+}
+.maintenance.show { display: flex; }
+.maintenance-card {
+    background: var(--bg-panel); border: 1px solid var(--border);
+    padding: 50px; border-radius: var(--radius-lg); text-align: center;
+    max-width: 500px; width: 90%; position: relative; overflow: hidden;
+}
+.maintenance-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--scp-yellow);
+}
+.mnt-tag { font-family: var(--font-mono); color: var(--scp-yellow); margin-bottom: 20px; letter-spacing: 2px; }
+.mnt-title { font-size: 2rem; color: #fff; margin-bottom: 15px; }
+.mnt-msg { color: var(--text-muted); margin-bottom: 30px; line-height: 1.6; }
+.mnt-progress { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+.mnt-progress i { display: block; height: 100%; width: 40%; background: var(--scp-yellow); animation: slide 2s infinite linear; }
+@keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+
+/* ========================================= */
+/* ADMIN SETTINGS                            */
+/* ========================================= */
+.admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.admin-tab { padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+.admin-tab.active { background: var(--gradient); color: #fff; border-color: transparent; }
+.admin-section { display: none; }
+.admin-section.active { display: block; animation: fadeIn 0.3s; }
+.news-admin-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: var(--radius-md); margin-bottom: 10px; border: 1px solid var(--border); }
