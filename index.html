@@ -757,20 +757,25 @@
                 ? `<iframe src="https://discord.com/widget?id=${widgetId}&theme=dark" width="100%" height="350" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts allow-same-origin" style="border-radius: 8px; border: 1px solid var(--border);"></iframe>`
                 : `<p class="muted">ID виджета Discord не настроен. Укажите его в админ-панели.</p>`;
 
+            // ССЫЛКИ НА СОЦСЕТИ (ЗАМЕНИ НА СВОИ!)
+            const linkDiscord = "https://discord.gg/твой_инвайт";
+            const linkTelegram = "https://t.me/твой_канал";
+            const linkVK = "https://vk.com/твоя_группа";
+
             container.innerHTML = `
                 <h1 class="mb-20">О нас / Связь</h1>
                 
                 <h2>// Наши социальные сети</h2>
                 <div class="grid-3 mb-20">
-                    <a href="#" class="panel mouse-glow" style="text-align: center; padding: 40px 20px; display: flex; flex-direction: column; align-items: center;">
+                    <a href="${linkDiscord}" target="_blank" rel="noopener" class="panel mouse-glow" style="text-align: center; padding: 40px 20px; display: flex; flex-direction: column; align-items: center;">
                         <img src="icon-discord.png" alt="Discord" style="width:48px; margin-bottom:15px;">
                         <h3>Discord</h3>
                     </a>
-                    <a href="#" class="panel mouse-glow" style="text-align: center; padding: 40px 20px; display: flex; flex-direction: column; align-items: center;">
+                    <a href="${linkTelegram}" target="_blank" rel="noopener" class="panel mouse-glow" style="text-align: center; padding: 40px 20px; display: flex; flex-direction: column; align-items: center;">
                         <img src="icon-telegram.png" alt="Telegram" style="width:48px; margin-bottom:15px;">
                         <h3>Telegram</h3>
                     </a>
-                    <a href="#" class="panel mouse-glow" style="text-align: center; padding: 40px 20px; display: flex; flex-direction: column; align-items: center;">
+                    <a href="${linkVK}" target="_blank" rel="noopener" class="panel mouse-glow" style="text-align: center; padding: 40px 20px; display: flex; flex-direction: column; align-items: center;">
                         <img src="icon-vk.png" alt="ВКонтакте" style="width:48px; margin-bottom:15px;">
                         <h3>ВКонтакте</h3>
                     </a>
