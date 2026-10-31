@@ -4,26 +4,712 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus • SCP-RP Terminal</title>
+    
     <!-- Шрифты -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <!-- Твой фавикон (замени путь на свой) -->
+    
+    <!-- Твой фавикон -->
     <link rel="icon" type="image/png" href="favicon.png">
+    
+    <style>
+        /* ========================================= */
+        /* VARIABLES                                 */
+        /* ========================================= */
+        :root {
+            --bg-dark: #05070A;
+            --bg-panel: rgba(17, 22, 32, 0.45);
+            --bg-panel-hover: rgba(25, 32, 46, 0.6);
+            --border: rgba(255, 255, 255, 0.06);
+            --border-hi: rgba(88, 153, 249, 0.3);
+            --text-main: #E6EDF3;
+            --text-muted: #8B949E;
+
+            --accent-start: #5899F9;
+            --accent-end: #6356F7;
+            --accent-glow: rgba(99, 86, 247, 0.4);
+            --gradient: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+            --gradient-hover: linear-gradient(90deg, #6CA6FF, #7B6CFF);
+
+            --scp-red: #FF4D4D;
+            --scp-green: #2ECC71;
+            --scp-yellow: #F1C40F;
+
+            --font-main: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --sidebar-width: 260px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ========================================= */
+        /* BACKGROUND                                */
+        /* ========================================= */
+        .bg-image-layer {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background-image: url('bg.png'); /* Твоя картинка */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #05070A;
+        }
+        .bg-image-layer::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(5,7,10,0.8) 0%, rgba(5,7,10,0.4) 100%);
+            backdrop-filter: blur(3px);
+        }
+
+        /* ========================================= */
+        /* TYPOGRAPHY                                */
+        /* ========================================= */
+        .mono { font-family: var(--font-mono); }
+        .muted { color: var(--text-muted); }
+        h1, h2, h3 { font-weight: 700; letter-spacing: -0.5px; }
+        h1 { font-size: 2.2rem; margin-bottom: 24px; color: #fff; }
+        h2 { font-size: 1.4rem; margin-bottom: 20px; color: #fff; }
+        p { line-height: 1.6; margin-bottom: 15px; color: #B0B8C4; font-size: 0.95rem; }
+        a { text-decoration: none; color: inherit; transition: color 0.2s; }
+
+        /* ========================================= */
+        /* SIDEBAR                                   */
+        /* ========================================= */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: rgba(8, 10, 15, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            top: 0; bottom: 0; left: 0;
+            display: flex; flex-direction: column;
+            z-index: 100;
+            padding: 20px 12px;
+        }
+
+        .brand {
+            padding: 10px 12px 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand img { width: 36px; height: 36px; filter: drop-shadow(0 0 10px var(--accent-glow)); }
+        .brand-text { font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; color: #fff; }
+        .brand-sub { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); letter-spacing: 1px; }
+
+        .nav-menu { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+        .nav-menu::-webkit-scrollbar { width: 0px; }
+
+        .nav-group-title {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            padding: 20px 12px 10px;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-main);
+        }
+        .nav-link.active {
+            background: rgba(88, 153, 249, 0.1);
+            color: var(--accent-start);
+            font-weight: 600;
+            box-shadow: inset 3px 0 0 var(--accent-start);
+        }
+
+        .sidebar-footer {
+            padding: 15px 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--scp-green);
+            box-shadow: 0 0 10px var(--scp-green);
+        }
+
+        /* ========================================= */
+        /* MAIN CONTENT                              */
+        /* ========================================= */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .topbar {
+            height: 72px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(5, 7, 10, 0.3);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .content-wrapper {
+            padding: 40px;
+            max-width: 1300px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .content-wrapper > * {
+            animation: slideInUp 0.4s ease-out backwards;
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========================================= */
+        /* BUTTONS                                   */
+        /* ========================================= */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(99, 86, 247, 0.3);
+        }
+        .btn-primary:hover {
+            background: var(--gradient-hover);
+            box-shadow: 0 6px 20px rgba(99, 86, 247, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: rgba(255, 77, 77, 0.1);
+            color: var(--scp-red);
+            border: 1px solid rgba(255, 77, 77, 0.3);
+        }
+        .btn-danger:hover {
+            background: rgba(255, 77, 77, 0.2);
+            box-shadow: 0 4px 15px rgba(255, 77, 77, 0.2);
+        }
+
+        .w-100 { width: 100%; }
+        .mt-15 { margin-top: 15px; }
+        .mb-20 { margin-bottom: 20px; }
+
+        /* ========================================= */
+        /* PANELS                                    */
+        /* ========================================= */
+        .panel {
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .mouse-glow::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(
+                150px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(255, 255, 255, 0.12),
+                transparent 100%
+            );
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .mouse-glow:hover::before { opacity: 1; }
+        .panel > * { position: relative; z-index: 1; }
+
+        /* ========================================= */
+        /* GRIDS                                     */
+        /* ========================================= */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+
+        /* ========================================= */
+        /* STAFF / ПЕРСОНАЛ                          */
+        /* ========================================= */
+        .staff-section { margin-bottom: 30px; }
+
+        .staff-section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+        .staff-section-header.high {
+            background: rgba(255, 77, 77, 0.05);
+            border-color: rgba(255, 77, 77, 0.2);
+        }
+
+        .staff-row {
+            display: grid;
+            grid-template-columns: 50px 1fr auto;
+            gap: 15px;
+            align-items: center;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+        .staff-row:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(4px);
+        }
+
+        .staff-num {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent-start);
+        }
+        .staff-role-name { font-weight: 600; font-size: 1rem; color: #fff; }
+        .staff-person {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .staff-vacant {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 50px;
+            background: transparent;
+            border: 1px dashed var(--border);
+        }
+
+        /* ========================================= */
+        /* MANAGEMENT / РУКОВОДСТВО                  */
+        /* ========================================= */
+        .mgmt-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .mgmt-card {
+            background: rgba(17, 22, 32, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 40px 25px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .mgmt-card:hover {
+            border-color: rgba(88, 153, 249, 0.3);
+            background: rgba(25, 32, 46, 0.6);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.5);
+        }
+
+        .mgmt-level {
+            position: absolute;
+            top: 15px; right: 15px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent-start);
+            padding: 4px 12px;
+            border-radius: 50px;
+            background: rgba(88, 153, 249, 0.1);
+            border: 1px solid rgba(88, 153, 249, 0.2);
+        }
+
+        .mgmt-tag {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent-start);
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .mgmt-role {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .mgmt-name {
+            font-family: var(--font-mono);
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* ========================================= */
+        /* RULES / ПРАВИЛА                           */
+        /* ========================================= */
+        .rules-intro {
+            padding: 20px 24px;
+            background: rgba(241, 196, 15, 0.05);
+            border: 1px solid rgba(241, 196, 15, 0.2);
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            color: #E6EDF3;
+            line-height: 1.6;
+        }
+
+        .rules-section {
+            background: var(--bg-panel);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .rules-section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px 24px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border);
+        }
+        .rules-section-num { font-family: var(--font-mono); font-weight: 700; color: var(--accent-start); }
+        .rules-section-title { font-size: 1rem; font-weight: 700; color: #fff; }
+
+        .rules-body { padding: 24px; }
+        .rule-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            display: flex;
+            gap: 15px;
+            color: #B0B8C4;
+        }
+        .rule-item:last-child { border-bottom: none; }
+        .rule-num { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-start); font-weight: 600; min-width: 40px; }
+
+        .rule-list { list-style: none; margin-top: 8px; }
+        .rule-list li { position: relative; padding-left: 18px; margin-bottom: 6px; font-size: 0.9rem; }
+        .rule-list li::before { content: '•'; position: absolute; left: 0; color: var(--accent-start); font-size: 1.2rem; line-height: 1; top: -2px; }
+
+        /* ========================================= */
+        /* MONITOR                                   */
+        /* ========================================= */
+        .server-monitor {
+            background: rgba(10, 14, 20, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            aspect-ratio: 1 / 1;
+            max-width: 480px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+        }
+        .monitor-head {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .monitor-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        .pulse-wrap {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .pulse-ring {
+            position: absolute;
+            inset: 15px;
+            border-radius: 50%;
+            border: 2px solid var(--monitor-color, var(--scp-green));
+            opacity: 0.5;
+            animation: pulseRing 2s infinite;
+        }
+        .pulse-dot {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--monitor-color, var(--scp-green));
+            box-shadow: 0 0 30px var(--monitor-color, var(--scp-green));
+        }
+        @keyframes pulseRing { 0%{transform:scale(1);opacity:0.8;} 100%{transform:scale(1.5);opacity:0;} }
+
+        .monitor-label { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .monitor-code {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-align: left;
+            background: rgba(0,0,0,0.4);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            width: 100%;
+            line-height: 1.6;
+            border-left: 3px solid var(--monitor-color, var(--scp-green));
+        }
+        .monitor-code .c-key { color: var(--text-muted); }
+        .monitor-code .c-val { color: #fff; font-weight: 600; }
+
+        .monitor-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--border); }
+        .mstat { padding: 15px 10px; text-align: center; border-right: 1px solid var(--border); }
+        .mstat:last-child { border-right: none; }
+        .mk { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+        .mv { font-size: 0.85rem; font-weight: 700; color: #fff; }
+
+        /* ========================================= */
+        /* NEWS & FORMS                              */
+        /* ========================================= */
+        .news-item {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+        }
+        .news-item:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+        .news-date { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-start); margin-bottom: 8px; }
+        .news-title { font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
+        .news-content { color: #B0B8C4; font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; }
+
+        .input-field {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: #fff;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            font-family: var(--font-main);
+            outline: none;
+            transition: all 0.2s;
+        }
+        .input-field:focus {
+            border-color: var(--accent-start);
+            box-shadow: 0 0 0 3px rgba(88, 153, 249, 0.15);
+            background: rgba(0, 0, 0, 0.5);
+        }
+        textarea.input-field { resize: vertical; min-height: 120px; }
+
+        /* ========================================= */
+        /* MODALS                                    */
+        /* ========================================= */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; transition: opacity 0.3s;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-box {
+            background: rgba(17, 22, 32, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            width: 100%; max-width: 400px; padding: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            transform: scale(0.95); transition: transform 0.3s;
+        }
+        .modal-overlay.active .modal-box { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .close-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; transition: color 0.2s; }
+        .close-btn:hover { color: var(--scp-red); }
+
+        /* ========================================= */
+        /* RESPONSIVE                                */
+        /* ========================================= */
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .mobile-menu-btn { display: block; }
+            .grid-2, .grid-3, .grid-4, .mgmt-grid { grid-template-columns: 1fr; }
+            .content-wrapper { padding: 20px; }
+            .staff-row { grid-template-columns: 1fr; gap: 10px; text-align: center; }
+            .staff-row > div { justify-self: center; }
+        }
+
+        /* Карточки соцсетей */
+        a.panel img {
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        a.panel:hover img {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 10px var(--accent-start));
+        }
+
+        /* ========================================= */
+        /* MAINTENANCE (Тех. работы)                 */
+        /* ========================================= */
+        .maintenance {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(5, 7, 10, 0.95); backdrop-filter: blur(20px);
+            display: none; align-items: center; justify-content: center;
+        }
+        .maintenance.show { display: flex; }
+        .maintenance-card {
+            background: var(--bg-panel); border: 1px solid var(--border);
+            padding: 50px; border-radius: var(--radius-lg); text-align: center;
+            max-width: 500px; width: 90%; position: relative; overflow: hidden;
+        }
+        .maintenance-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--scp-yellow);
+        }
+        .mnt-tag { font-family: var(--font-mono); color: var(--scp-yellow); margin-bottom: 20px; letter-spacing: 2px; }
+        .mnt-title { font-size: 2rem; color: #fff; margin-bottom: 15px; }
+        .mnt-msg { color: var(--text-muted); margin-bottom: 30px; line-height: 1.6; }
+        .mnt-progress { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+        .mnt-progress i { display: block; height: 100%; width: 40%; background: var(--scp-yellow); animation: slide 2s infinite linear; }
+        @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+
+        /* ========================================= */
+        /* ADMIN SETTINGS                            */
+        /* ========================================= */
+        .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .admin-tab { padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+        .admin-tab.active { background: var(--gradient); color: #fff; border-color: transparent; }
+        .admin-section { display: none; }
+        .admin-section.active { display: block; animation: fadeIn 0.3s; }
+        .news-admin-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: var(--radius-md); margin-bottom: 10px; border: 1px solid var(--border); }
+    </style>
 </head>
 <body>
+
+    <!-- Слой для фона -->
     <div class="bg-image-layer"></div>
-    
-    <!-- Сайдбар (Навигация) -->
+
+    <!-- Сайдбар -->
     <aside class="sidebar" id="sidebar">
-        <div class="brand" onclick="window.location.hash = '#/home'">
-            <div class="brand-logo">
-                <!-- Твой бейдж (замени путь на свой) -->
-                <img src="badge.png" alt="Nexus Logo" onerror="this.style.display='none'">
-                <span class="brand-text">NEXUS</span>
+        <div class="brand" id="brandBtn">
+            <img src="badge.png" alt="Nexus Logo" onerror="this.style.display='none'">
+            <div>
+                <div class="brand-text">NEXUS</div>
+                <div class="brand-sub">SCP-RP SYSTEM</div>
             </div>
-            <div class="brand-sub">SCP-RP SYSTEM</div>
         </div>
 
         <nav class="nav-menu">
@@ -70,7 +756,7 @@
                 О нас / Связь
             </a>
             
-            <a href="#/admin" class="nav-link admin-link" id="adminNavLink" style="display:none; color: var(--scp-red);">
+            <a href="#/admin" class="nav-link" id="adminNavLink" style="display:none; color: var(--scp-red);">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                 [ADMIN] Панель
             </a>
@@ -84,20 +770,16 @@
 
     <!-- Основной контент -->
     <main class="main-content">
-        <!-- Шапка -->
         <header class="topbar">
             <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
-            <div class="topbar-info">
-                <span class="mono">[ NODE: NEXUS-01 ]</span>
-                <span class="mono">[ SECURITY: LEVEL-4 ]</span>
+            <div style="display: flex; gap: 20px; font-size: 0.8rem; color: var(--text-muted);" class="mono">
+                <span>[ NODE: NEXUS-01 ]</span>
+                <span>[ SECURITY: LEVEL-4 ]</span>
             </div>
             <a href="#/download" class="btn btn-outline">СКАЧАТЬ ЛАУНЧЕР</a>
         </header>
 
-        <!-- Контейнер для страниц -->
-        <div id="app-content" class="content-wrapper">
-            <!-- Сюда JS будет рендерить страницы -->
-        </div>
+        <div id="app-content" class="content-wrapper"></div>
     </main>
 
     <!-- Экран технических работ -->
@@ -110,24 +792,450 @@
             <button class="btn btn-outline mt-15" onclick="location.reload()">ОБНОВИТЬ СТРАНИЦУ</button>
         </div>
     </div>
-    
-    <!-- Модальное окно авторизации -->
+
+    <!-- Модальное окно входа -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal-box">
             <div class="modal-header">
-                <h3>> ACCESS TERMINAL</h3>
+                <h3 class="mono" style="color: var(--accent-start);">> ACCESS TERMINAL</h3>
                 <button class="close-btn" onclick="closeModal('loginModal')">✕</button>
             </div>
-            <div class="modal-body">
-                <p class="mono muted" style="margin-bottom: 15px;">Требуется уровень допуска 4.</p>
-                <input type="text" id="loginUser" class="input-field" placeholder="LOGIN (admin)" autocomplete="off">
-                <input type="password" id="loginPass" class="input-field" placeholder="PASSWORD (admin)" autocomplete="off">
-                <div id="loginError" class="error-msg"></div>
-                <button class="btn btn-primary w-100 mt-15" onclick="doLogin()">ВОЙТИ В СИСТЕМУ</button>
-            </div>
+            <p class="mono muted mb-20" style="font-size: 0.8rem;">Требуется уровень допуска 4.</p>
+            <input type="text" id="loginUser" class="input-field" placeholder="LOGIN" autocomplete="off">
+            <input type="password" id="loginPass" class="input-field" placeholder="PASSWORD" autocomplete="new-password">
+            <div id="loginError" class="mono mb-20" style="color: var(--scp-red); min-height: 18px; font-size: 0.8rem;"></div>
+            <button class="btn btn-primary w-100" onclick="doLogin()">ВОЙТИ В СИСТЕМУ</button>
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        // ==========================================
+        // КОНФИГУРАЦИЯ
+        // ==========================================
+        const CONFIG = {
+            SUPABASE_URL: '', 
+            SUPABASE_KEY: '',
+            ADMIN_LOGIN: 'nexus-scprp',
+            ADMIN_PASS: 'nexus-password-scprp'
+        };
+
+        function safeParse(key, fallback) {
+            try {
+                const item = localStorage.getItem(key);
+                return item ? JSON.parse(item) : fallback;
+            } catch (e) {
+                return fallback;
+            }
+        }
+
+        // ==========================================
+        // БАЗА ДАННЫХ
+        // ==========================================
+        let DB = {
+            news: safeParse('nexus_news', [
+                {
+                    id: 1,
+                    date: new Date().toLocaleDateString('ru-RU'),
+                    title: 'Запуск терминала Nexus',
+                    content: 'Добро пожаловать на официальный портал проекта Nexus • SCP-RP. Мы начинаем открытое тестирование. Следите за обновлениями.',
+                    image: ''
+                }
+            ]),
+            settings: safeParse('nexus_settings', {
+                ip: 'play.nexus-scp.ru',
+                version: '1.20.1 FORGE',
+                maintenance: false,
+                maintMsg: 'Сервер находится на обновлении. Пожалуйста, зайдите позже.',
+                serverStatus: 'ONLINE',
+                hostingStatus: 'NORMAL'
+            })
+        };
+
+        if (!DB.settings) DB.settings = {};
+        if (!DB.settings.ip) DB.settings.ip = 'play.nexus-scp.ru';
+        if (!DB.settings.version) DB.settings.version = '1.20.1 FORGE';
+        if (!DB.news) DB.news = [];
+
+        function saveData() {
+            localStorage.setItem('nexus_news', JSON.stringify(DB.news));
+            localStorage.setItem('nexus_settings', JSON.stringify(DB.settings));
+        }
+
+        function applySettings() {
+            try {
+                const monIp = document.getElementById('mon-ip');
+                if (monIp) monIp.textContent = DB.settings.ip;
+                const monVer = document.getElementById('mon-ver');
+                if (monVer) monVer.textContent = DB.settings.version;
+                const mntMsg = document.getElementById('mntMessage');
+                if (mntMsg) mntMsg.textContent = DB.settings.maintMsg;
+                
+                const mnt = document.getElementById('maintenance');
+                const isAdmin = sessionStorage.getItem('nexus_admin') === 'true';
+                if (mnt) {
+                    if (DB.settings.maintenance && !isAdmin) mnt.classList.add('show');
+                    else mnt.classList.remove('show');
+                }
+            } catch(e) { console.error('Ошибка в applySettings', e); }
+        }
+
+        // ==========================================
+        // ДАННЫЕ
+        // ==========================================
+        const STAFF_LIST = [
+            { num: 14, section: 'high', role: 'Основатель проекта', name: 'Sayderty', tag: 'FOUNDER', level: 'LEVEL-5' },
+            { num: 13, section: 'high', role: 'Руководитель проекта', name: 'dark_esz', tag: 'MANAGER', level: 'LEVEL-5' },
+            { num: 12, section: 'high', role: 'Куратор', name: 'NewStalker3041', tag: 'CURATOR', level: 'LEVEL-4' },
+            { num: 11, section: 'admin', role: 'Главный администратор', name: null },
+            { num: 10, section: 'admin', role: 'Старший администратор', name: null },
+            { num: 9, section: 'admin', role: 'Администратор', name: null },
+            { num: 8, section: 'admin', role: 'Младший администратор', name: 'GeoMatrixi' },
+            { num: 7, section: 'mod', role: 'Главный модератор', name: null },
+            { num: 6, section: 'mod', role: 'Старший модератор', name: null },
+            { num: 5, section: 'mod', role: 'Модератор', name: null },
+            { num: 4, section: 'mod', role: 'Младший модератор', name: 'Iskatel_Misteki3' },
+            { num: 3, section: 'trainee', role: 'Стажёр', name: null },
+            { num: 2, section: 'builder', role: 'Главный билдер', name: null },
+            { num: 1, section: 'builder', role: 'Билдер', name: null }
+        ];
+
+        const STAFF_SECTIONS = {
+            high:    { title: 'Высшее руководство', icon: '👑', class: 'high' },
+            admin:   { title: 'Администрация', icon: '⚙️', class: '' },
+            mod:     { title: 'Модерация', icon: '🛡️', class: '' },
+            trainee: { title: 'Стажёры', icon: '📋', class: '' },
+            builder: { title: 'Билдерский отдел', icon: '🔨', class: '' }
+        };
+
+        const DISCORD_RULES = [
+            { num: 'I', icon: '🌐', title: 'Общие положения', rules: [
+                { n: '1.1', t: 'Незнание правил не освобождает от ответственности.' },
+                { n: '1.2', t: 'Администрация вправе принимать решения в нестандартных ситуациях.' },
+                { n: '1.3', t: 'Попытка обойти правила рассматривается как нарушение.' },
+                { n: '1.4', t: 'Все решения администрации должны быть аргументированы.' },
+                { n: '1.5', t: 'Оскорбления или давление на администрацию запрещены.' }
+            ]},
+            { num: 'II', icon: '💬', title: 'Общение', rules: [
+                { n: '2.1', t: 'Запрещены любые формы оскорблений и дискриминации.' },
+                { n: '2.2', t: 'Запрещено разжигание конфликтов и провокации.' },
+                { n: '2.3', t: 'Спам запрещён. К спаму относится:', list: ['повторение сообщений', 'чрезмерное использование эмодзи', 'флуд', 'массовое упоминание'] },
+                { n: '2.4', t: 'Запрещено злоупотребление CAPS LOCK.' }
+            ]},
+            { num: 'III', icon: '🛡️', title: 'Безопасность', rules: [
+                { n: '3.1', t: 'Запрещено публиковать вредоносные ссылки.' },
+                { n: '3.2', t: 'Запрещено выдавать себя за администрацию.' },
+                { n: '3.3', t: 'Запрещено распространять личную информацию.' }
+            ]}
+        ];
+
+        // ==========================================
+        // МОНИТОР
+        // ==========================================
+        function getMonitorState() {
+            const s = DB.settings.serverStatus;
+            const h = DB.settings.hostingStatus;
+            if (h === 'UNPAID') return { color: 'var(--scp-red)', label: 'HOSTING_UNPAID', code: '<span class="c-hash"># [CRITICAL]</span>\n<span class="c-key">server:</span> <span class="c-val">' + s + '</span>\n<span class="c-key">hosting:</span> <span class="c-val">UNPAID</span>' };
+            if (h === 'PROBLEMS') return { color: '#FF8C42', label: 'HOSTING_PROBLEMS', code: '<span class="c-hash"># [ERROR]</span>\n<span class="c-key">server:</span> <span class="c-val">' + s + '</span>' };
+            if (s === 'OFFLINE') return { color: 'var(--scp-red)', label: 'SERVER_OFFLINE', code: '<span class="c-hash"># [OFFLINE]</span>\n<span class="c-key">server:</span> <span class="c-val">OFFLINE</span>' };
+            return { color: 'var(--scp-green)', label: 'SYSTEM_NOMINAL', code: '<span class="c-hash"># [NOMINAL]</span>\n<span class="c-key">server:</span> <span class="c-val">ONLINE</span>\n<span class="c-key">uptime:</span> <span class="c-val">99.9%</span>' };
+        }
+
+        function renderMonitor() {
+            const state = getMonitorState();
+            return `
+                <div class="server-monitor" style="--monitor-color: ${state.color};">
+                    <div class="monitor-head"><span class="mono">NEXUS_NETWORK</span><span class="mono live-indicator"><span class="live-dot"></span>LIVE</span></div>
+                    <div class="monitor-body">
+                        <div class="pulse-wrap"><div class="pulse-ring"></div><div class="pulse-dot"></div></div>
+                        <div class="monitor-label mono">${state.label}</div>
+                        <div class="monitor-code mono">${state.code}</div>
+                    </div>
+                    <div class="monitor-stats">
+                        <div class="mstat"><div class="mk mono">Server</div><div class="mv" id="mon-ip" style="font-size:0.6rem; word-break:break-all;">${DB.settings.ip}</div></div>
+                        <div class="mstat"><div class="mk mono">Version</div><div class="mv" id="mon-ver" style="font-size:0.65rem;">${DB.settings.version}</div></div>
+                        <div class="mstat"><div class="mk mono">Access</div><div class="mv">PUBLIC</div></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // РОУТЕР
+        // ==========================================
+        const routes = {
+            '/home': renderHome, '/rules-discord': renderRulesDiscord, '/rules-rp': renderRulesRP,
+            '/rules-admin': renderRulesAdmin, '/management': renderManagement, '/staff': renderStaff,
+            '/roles': renderRoles, '/download': renderDownload, '/about': renderAbout, '/admin': renderAdmin
+        };
+
+        function router() {
+            let hash = window.location.hash.replace('#', '') || '/home';
+            if (!routes[hash]) hash = '/home';
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === '#' + hash);
+            });
+            
+            const content = document.getElementById('app-content');
+            if (content) {
+                content.innerHTML = '';
+                try { routes[hash](content); } 
+                catch (err) {
+                    console.error("Ошибка:", err);
+                    content.innerHTML = `<div class="panel"><h2 style="color:red">Ошибка загрузки страницы</h2></div>`;
+                }
+            }
+            
+            if (window.innerWidth <= 900) {
+                const sb = document.getElementById('sidebar');
+                if (sb) sb.classList.remove('open');
+            }
+            applySettings();
+            initMouseGlow(); 
+        }
+
+        window.addEventListener('load', () => { router(); });
+        window.addEventListener('hashchange', router);
+
+        function toggleSidebar() { 
+            const sb = document.getElementById('sidebar');
+            if (sb) sb.classList.toggle('open'); 
+        }
+
+        // ==========================================
+        // СТРАНИЦЫ
+        // ==========================================
+        function renderHome(container) {
+            const newsHTML = DB.news.map(n => `
+                <div class="news-item">
+                    <div class="news-date">> DATE: ${n.date}</div>
+                    <div class="news-title">${n.title}</div>
+                    <div class="news-content">${n.content}</div>
+                    ${n.image ? `<img src="${n.image}" style="width:100%; border-radius:8px; margin-top:10px;">` : ''}
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="grid-2 mb-20" style="gap: 30px; align-items: stretch;">
+                    <div class="panel" style="background: linear-gradient(180deg, rgba(88,153,249,0.1) 0%, transparent 100%); display: flex; flex-direction: column; justify-content: center;">
+                        <h1 style="font-size: 2.5rem; margin-bottom: 10px;">NEXUS • SCP-RP</h1>
+                        <p class="mono" style="color: var(--accent-start); margin-bottom: 20px;">> ДОБРО ПОЖАЛОВАТЬ В ТЕРМИНАЛ ФОНДА</p>
+                        <p>Официальный портал ролевого проекта по вселенной SCP. Ознакомьтесь с документацией перед началом игры.</p>
+                        <div style="margin-top: 25px; display: flex; gap: 10px; flex-wrap: wrap;">
+                            <a href="#/rules-rp" class="btn btn-outline">ПРАВИЛА RP</a>
+                            <a href="#/download" class="btn btn-primary">СКАЧАТЬ ЛАУНЧЕР</a>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        ${renderMonitor()}
+                    </div>
+                </div>
+                <h2>// ПОСЛЕДНИЕ ОБНОВЛЕНИЯ</h2>
+                <div class="panel">${newsHTML || '<p class="muted">Новостей пока нет.</p>'}</div>
+            `;
+        }
+
+        function renderRulesDiscord(container) {
+            const sectionsHTML = DISCORD_RULES.map(sec => {
+                const rulesHTML = sec.rules.map(r => {
+                    const numHTML = r.n ? `<div class="rule-num">${r.n}</div>` : '';
+                    let content = `<div class="rule-text">${r.t}`;
+                    if (r.list) content += '<ul class="rule-list">' + r.list.map(li => `<li>${li}</li>`).join('') + '</ul>';
+                    content += '</div>';
+                    return `<div class="rule-item">${numHTML}${content}</div>`;
+                }).join('');
+                return `
+                    <div class="rules-section">
+                        <div class="rules-section-header">
+                            <span class="rules-section-icon">${sec.icon}</span>
+                            <span class="rules-section-num">${sec.num}</span>
+                            <span class="rules-section-title">${sec.title}</span>
+                        </div>
+                        <div class="rules-body">${rulesHTML}</div>
+                    </div>
+                `;
+            }).join('');
+            container.innerHTML = `<h1 class="mb-20">Правила Discord</h1>${sectionsHTML}`;
+        }
+
+        function renderRulesRP(container) {
+            container.innerHTML = `<h1 class="mb-20">Правила отыгровки (RP)</h1><div class="panel"><h2>1. Основы Roleplay</h2><p>1.1. FearRP — бойся за жизнь.</p><p>1.2. FailRP — запрещено нереалистичное поведение.</p></div>`;
+        }
+
+        function renderRulesAdmin(container) {
+            container.innerHTML = `<h1 class="mb-20">Правила администрации</h1><div class="panel" style="text-align: center; padding: 50px;"><h2 style="border: none; color: var(--scp-yellow);">⚠ РАЗДЕЛ В РАЗРАБОТКЕ ⚠</h2></div>`;
+        }
+
+        function renderManagement(container) {
+            const management = STAFF_LIST.filter(s => s.section === 'high');
+            const cardsHTML = management.map(s => `
+                <div class="mgmt-card">
+                    <div class="mgmt-level">${s.level}</div>
+                    <div class="mgmt-tag">// ${s.tag}</div>
+                    <div class="mgmt-role">${s.role}</div>
+                    <div class="mgmt-name">${s.name}</div>
+                </div>
+            `).join('');
+            container.innerHTML = `<h1 class="mb-20">Руководство проекта</h1><div class="mgmt-grid">${cardsHTML}</div>`;
+        }
+
+        function renderStaff(container) {
+            const order = ['high', 'admin', 'mod', 'trainee', 'builder'];
+            const sectionsHTML = order.map(key => {
+                const meta = STAFF_SECTIONS[key];
+                const members = STAFF_LIST.filter(s => s.section === key);
+                if (!members.length) return '';
+                const rowsHTML = members.map(s => `
+                    <div class="staff-row">
+                        <div class="staff-num">${String(s.num).padStart(2, '0')}</div>
+                        <div class="staff-role-name">${s.role}</div>
+                        ${s.name ? `<div class="staff-person">${s.name}</div>` : `<div class="staff-vacant">VACANT</div>`}
+                    </div>
+                `).join('');
+                return `<div class="staff-section"><div class="staff-section-header ${meta.class}">${meta.title}</div>${rowsHTML}</div>`;
+            }).join('');
+            container.innerHTML = `<h1 class="mb-20">Персонал проекта</h1>${sectionsHTML}`;
+        }
+
+        function renderRoles(container) {
+            container.innerHTML = `<h1 class="mb-20">Роли проекта</h1><div class="panel"><h2>// Список ролей (Заглушка)</h2><p>Описание появится позже.</p></div>`;
+        }
+
+        function renderDownload(container) {
+            container.innerHTML = `
+                <h1 class="mb-20">Скачать лаунчер</h1>
+                <div class="panel">
+                    <h2>Версия 1.0.0</h2>
+                    <p>Сборка: Minecraft 1.20.1 Forge, моды на SCP, оптимизация.</p>
+                    <a href="#" class="btn btn-primary mt-15" onclick="alert('Ссылка появится позже')">СКАЧАТЬ (Windows)</a>
+                </div>
+            `;
+        }
+
+        function renderAbout(container) {
+            container.innerHTML = `
+                <h1 class="mb-20">О нас / Связь</h1>
+                <div class="grid-3">
+                    <a href="#" class="panel" style="text-align: center; padding: 40px 20px;">
+                        <img src="icon-discord.png" alt="Discord" style="width: 48px; margin-bottom: 15px;">
+                        <h3>Discord</h3>
+                    </a>
+                    <a href="#" class="panel" style="text-align: center; padding: 40px 20px;">
+                        <img src="icon-telegram.png" alt="Telegram" style="width: 48px; margin-bottom: 15px;">
+                        <h3>Telegram</h3>
+                    </a>
+                    <a href="#" class="panel" style="text-align: center; padding: 40px 20px;">
+                        <img src="icon-vk.png" alt="ВКонтакте" style="width: 48px; margin-bottom: 15px;">
+                        <h3>ВКонтакте</h3>
+                    </a>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // АДМИНКА
+        // ==========================================
+        function isAdmin() { return sessionStorage.getItem('nexus_admin') === 'true'; }
+
+        function renderAdmin(container) {
+            if (!isAdmin()) {
+                window.location.hash = '#/home';
+                return;
+            }
+            const newsList = DB.news.map(n => `
+                <div class="news-admin-item">
+                    <div><strong>${n.title}</strong></div>
+                    <button class="btn btn-danger" onclick="deleteNews(${n.id})">✕</button>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="panel mb-20" style="border-left: 3px solid var(--scp-red);">
+                    <h1 style="color: var(--scp-red);">ADMIN CONTROL PANEL</h1>
+                    <button class="btn btn-outline mt-15" onclick="logout()">ЗАВЕРШИТЬ СЕАНС</button>
+                </div>
+                <div class="panel">
+                    <h2>// Создать новость</h2>
+                    <input type="text" id="newsTitle" class="input-field" placeholder="Заголовок">
+                    <textarea id="newsContent" class="input-field" placeholder="Текст"></textarea>
+                    <button class="btn btn-primary" onclick="createNews()">ОПУБЛИКОВАТЬ</button>
+                </div>
+                <div class="panel">
+                    <h2>// Список новостей</h2>
+                    ${newsList}
+                </div>
+            `;
+        }
+
+        function createNews() {
+            const title = document.getElementById('newsTitle').value;
+            const content = document.getElementById('newsContent').value;
+            if (!title || !content) return alert('Заполните поля!');
+            DB.news.unshift({ id: Date.now(), date: new Date().toLocaleDateString('ru-RU'), title, content, image: '' });
+            saveData();
+            router();
+        }
+
+        function deleteNews(id) {
+            if (!confirm('Удалить?')) return;
+            DB.news = DB.news.filter(n => n.id !== id);
+            saveData();
+            router();
+        }
+
+        function doLogin() {
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+            const err = document.getElementById('loginError');
+            if (user === CONFIG.ADMIN_LOGIN && pass === CONFIG.ADMIN_PASS) {
+                sessionStorage.setItem('nexus_admin', 'true');
+                document.getElementById('adminNavLink').style.display = 'flex';
+                closeModal('loginModal');
+                window.location.hash = '#/admin';
+            } else {
+                if(err) err.textContent = '> ОШИБКА ВХОДА';
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('nexus_admin');
+            document.getElementById('adminNavLink').style.display = 'none';
+            window.location.hash = '#/home';
+            router();
+        }
+
+        const brandEl = document.getElementById('brandBtn');
+        if (brandEl) {
+            brandEl.addEventListener('click', function(e) {
+                if (e.ctrlKey && e.shiftKey) {
+                    e.preventDefault();
+                    if (isAdmin()) window.location.hash = '#/admin';
+                    else openModal('loginModal');
+                } else {
+                    window.location.hash = '#/home';
+                }
+            });
+        }
+
+        if (isAdmin()) {
+            const al = document.getElementById('adminNavLink');
+            if (al) al.style.display = 'flex';
+        }
+
+        function openModal(id) { const m = document.getElementById(id); if(m) m.classList.add('active'); }
+        function closeModal(id) { const m = document.getElementById(id); if(m) m.classList.remove('active'); }
+
+        function initMouseGlow() {
+            const glowElements = document.querySelectorAll('.panel, .mgmt-card, .news-item, .staff-row');
+            glowElements.forEach(el => {
+                el.classList.add('mouse-glow');
+                el.addEventListener('mousemove', (e) => {
+                    const rect = el.getBoundingClientRect();
+                    el.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                    el.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+                });
+            });
+        }
+    </script>
 </body>
 </html>
