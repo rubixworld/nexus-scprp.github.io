@@ -902,6 +902,7 @@
 
         // Умный переключатель режима HTML
         // Умный переключатель режима HTML
+        // Умный переключатель режима HTML (ИСПРАВЛЕННЫЙ)
         function toggleHtmlMode(btn) {
             const wrap = btn.closest('.wysiwyg-wrap');
             const editor = wrap.querySelector('.wysiwyg-editor');
@@ -910,40 +911,40 @@
             if (!isCodeMode) {
                 // ВКЛЮЧАЕМ РЕЖИМ КОДА
                 btn.setAttribute('data-active', 'true');
+                // Сохраняем текущий HTML как текст, чтобы его можно было редактировать
+                editor.textContent = editor.innerHTML; 
                 editor.style.fontFamily = 'var(--font-mono)';
                 editor.style.color = '#a5d6ff';
-                // Превращаем HTML в текст, чтобы его можно было редактировать как код
-                editor.textContent = editor.innerHTML; 
                 btn.style.background = 'var(--accent)';
                 btn.style.color = '#fff';
             } else {
-                // ВКЛЮЧАЕМ ВИЗУАЛЬНЫЙ РЕЖИМ (ПАРСИМ)
+                // ВКЛЮЧАЕМ ВИЗУАЛЬНЫЙ РЕЖИМ
                 btn.setAttribute('data-active', 'false');
                 let rawText = editor.textContent;
 
-                // 1. Если вставлен JSON файл целиком (как на твоем скрине)
+                // 1. Если это JSON файл
                 if (rawText.trim().startsWith('{') && rawText.trim().endsWith('}')) {
                     try {
                         const parsed = JSON.parse(rawText);
-                        const key = Object.keys(parsed)[0]; // берем ключ discord, rp или staff
+                        const key = Object.keys(parsed)[0];
                         if (parsed[key]) rawText = parsed[key];
-                    } catch (e) {
-                        console.log("Это не JSON, обрабатываем как обычный HTML");
+                    } catch (e) { console.log("Не JSON"); }
+                }
+
+                // 2. Декодируем HTML-сущности, сохраняя теги (выполняем 2 раза, чтобы убрать &amp;lt;)
+                let decoded = rawText;
+                for (let i = 0; i < 2; i++) {
+                    if (decoded.includes('&lt;') || decoded.includes('&gt;') || decoded.includes('&amp;') || decoded.includes('&quot;')) {
+                        const ta = document.createElement('textarea');
+                        ta.innerHTML = decoded;
+                        decoded = ta.value;
                     }
                 }
 
-                // 2. Расшифровываем дважды экранированные символы (&amp;lt; -> &lt; -> <)
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = rawText;
-                let decoded = tempDiv.textContent || tempDiv.innerText || "";
-                
-                tempDiv.innerHTML = decoded;
-                decoded = tempDiv.innerHTML;
-
-                // 3. Возвращаем визуал
+                // 3. Вставляем обратно в редактор и включаем красивое отображение
+                editor.innerHTML = decoded;
                 editor.style.fontFamily = 'inherit';
                 editor.style.color = '#fff';
-                editor.innerHTML = decoded; // Рендерим чистый HTML
                 btn.style.background = '';
                 btn.style.color = '';
             }
