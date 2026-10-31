@@ -5,16 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus • SCP-RP Terminal</title>
     
-    <!-- Шрифты -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="favicon.png">
     
     <style>
-        /* ========================================= */
-        /* VARIABLES (Цвета Нексуса)                 */
-        /* ========================================= */
         :root {
             --bg-dark: #05070A;
             --bg-panel: rgba(17, 22, 32, 0.5);
@@ -53,7 +49,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Фон */
         .bg-image-layer {
             position: fixed; inset: 0; z-index: -2;
             background-image: url('bg.png');
@@ -66,7 +61,6 @@
             backdrop-filter: blur(3px);
         }
 
-        /* Типографика */
         .mono { font-family: var(--font-mono); }
         .muted { color: var(--text-muted); }
         h1, h2, h3 { font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
@@ -75,7 +69,6 @@
         p { line-height: 1.6; margin-bottom: 15px; color: #B0B8C4; font-size: 0.95rem; }
         a { text-decoration: none; color: inherit; transition: 0.2s; }
 
-        /* Сайдбар */
         .sidebar {
             width: var(--sidebar-width);
             background: rgba(8, 10, 15, 0.6);
@@ -111,7 +104,6 @@
         }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
 
-        /* Основной контент */
         .main-content { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; z-index: 1; }
         
         .topbar {
@@ -125,7 +117,6 @@
         .content-wrapper { padding: 40px; max-width: 1300px; margin: 0 auto; width: 100%; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* UI Компоненты */
         .btn {
             display: inline-flex; align-items: center; justify-content: center;
             padding: 12px 24px; border-radius: 50px; font-family: var(--font-main);
@@ -141,26 +132,26 @@
         
         .w-100 { width: 100%; } .mt-15 { margin-top: 15px; } .mb-20 { margin-bottom: 20px; }
 
-        /* Панели (Glassmorphism + Фонарик) */
         .panel {
             background: var(--bg-panel); backdrop-filter: blur(16px);
             border: 1px solid var(--border); border-radius: var(--radius);
             padding: 30px; margin-bottom: 24px; position: relative; overflow: hidden;
         }
+        
+        /* Эффект фонарика */
+        .mouse-glow { position: relative; overflow: hidden; }
         .mouse-glow::before {
             content: ''; position: absolute; inset: 0;
             background: radial-gradient(150px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(88,153,249,0.15), transparent 100%);
             opacity: 0; transition: 0.3s; pointer-events: none; z-index: 0;
         }
         .mouse-glow:hover::before { opacity: 1; }
-        .panel > * { position: relative; z-index: 1; }
+        .mouse-glow > * { position: relative; z-index: 1; }
 
-        /* Сетки */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
         .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
 
-        /* ================= HERO & MONITOR ================= */
         .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; min-height: 60vh; margin-bottom: 40px; }
         .hero-title { font-size: clamp(40px, 6vw, 80px); font-weight: 900; line-height: 1; margin-bottom: 20px; }
         .hero-title .grad { background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -186,7 +177,6 @@
         .mk { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
         .mv { font-size: 0.85rem; font-weight: 700; color: #fff; }
 
-        /* ================= STATUS & CARDS ================= */
         .status-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-panel); backdrop-filter: blur(10px); }
         .status-cell { padding: 30px; border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; }
         .status-cell:last-child { border-right: none; }
@@ -205,12 +195,7 @@
         .pcard p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; flex: 1; }
         .pcard .open { font-family: var(--font-mono); font-size: 12px; color: var(--accent); font-weight: 700; }
 
-        /* ================= RULES & TABS ================= */
-        .tab-bar { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
-        .tab { padding: 10px 20px; border: 1px solid var(--border); border-radius: 50px; background: rgba(255,255,255,0.02); color: var(--text-muted); font-family: var(--font-mono); font-size: 12px; cursor: pointer; transition: 0.2s; }
-        .tab:hover, .tab.tab-active { background: var(--grad); color: #fff; border-color: transparent; }
-        
-        .rules-content { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 35px; backdrop-filter: blur(10px); }
+        .rules-content { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 35px; backdrop-filter: blur(10px); position: relative; overflow: hidden; }
         .rules-intro { border-left: 3px solid var(--accent); padding-left: 20px; color: #C9D1D9; font-size: 14px; line-height: 1.7; margin-bottom: 35px; }
         .rules-section { margin-bottom: 30px; }
         .rules-section-title { font-size: 18px; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; }
@@ -220,10 +205,10 @@
         .rules-punish { font-family: var(--font-mono); font-size: 12px; background: rgba(0,0,0,0.3); padding: 12px 16px; border-left: 2px solid var(--yellow); border-radius: 0 8px 8px 0; margin-top: 10px; color: var(--text-muted); }
         .rules-bottom-warn { text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--yellow); padding: 20px; border: 1px dashed rgba(241, 196, 15, 0.3); border-radius: var(--radius); margin-top: 30px; }
 
-        /* ================= STAFF ================= */
         .staff-section { margin-bottom: 30px; }
         .staff-section-header { display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-radius: var(--radius); background: rgba(255,255,255,0.03); border: 1px solid var(--border); font-weight: 700; color: #fff; margin-bottom: 15px; }
         .staff-section-header.high { background: rgba(255, 77, 77, 0.1); border-color: rgba(255,77,77,0.3); }
+        
         .staff-row { display: grid; grid-template-columns: 50px 1fr auto; gap: 15px; align-items: center; padding: 15px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius); margin-bottom: 8px; border: 1px solid transparent; }
         .staff-row:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
         .staff-num { font-family: var(--font-mono); font-size: 1rem; font-weight: 700; color: var(--accent); }
@@ -238,32 +223,28 @@
         .mgmt-role { font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 20px; }
         .mgmt-name { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-top: 20px; border-top: 1px solid var(--border); }
 
-        /* ================= FORMS & ADMIN ================= */
         .input-field { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; color: #fff; padding: 12px 15px; margin-bottom: 12px; font-family: var(--font-main); outline: none; transition: 0.2s; }
         .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,153,249,0.15); }
         textarea.input-field { resize: vertical; min-height: 120px; }
         
-        .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .admin-tab { padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); cursor: pointer; }
+        .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .admin-tab { padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
         .admin-tab.active { background: var(--grad); color: #fff; border-color: transparent; }
         .admin-section { display: none; }
         .admin-section.active { display: block; animation: fadeIn 0.3s; }
         
-        .adm-card { background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px; }
         .adm-toggle { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; color: #fff; }
         .adm-switch { position: relative; width: 44px; height: 24px; background: rgba(255,255,255,0.1); border-radius: 50px; cursor: pointer; transition: 0.3s; }
         .adm-switch::after { content: ''; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: 0.3s; }
         .adm-switch.on { background: var(--green); }
         .adm-switch.on::after { left: 23px; }
 
-        /* Модалки */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; }
         .modal-overlay.active { display: flex; }
         .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 400px; padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; backdrop-filter: blur(20px); }
         .close-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
         .close-btn:hover { color: var(--red); }
 
-        /* Тех работы */
         .maintenance { position: fixed; inset: 0; z-index: 9999; background: rgba(5,7,10,0.95); backdrop-filter: blur(20px); display: none; align-items: center; justify-content: center; }
         .maintenance.show { display: flex; }
         .maintenance-card { background: var(--bg-panel); border: 1px solid var(--border); border-top: 3px solid var(--yellow); padding: 50px; border-radius: var(--radius); text-align: center; max-width: 500px; width: 90%; }
@@ -272,7 +253,6 @@
         .mnt-progress i { display: block; height: 100%; width: 40%; background: var(--yellow); animation: slide 2s infinite linear; }
         @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
 
-        /* Адаптив */
         @media (max-width: 900px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
@@ -291,7 +271,6 @@
 
     <div class="bg-image-layer"></div>
 
-    <!-- Сайдбар -->
     <aside class="sidebar" id="sidebar">
         <div class="brand" id="brandBtn">
             <img src="badge.png" alt="Nexus Logo" onerror="this.style.display='none'">
@@ -346,7 +325,6 @@
         </div>
     </aside>
 
-    <!-- Основной контент -->
     <main class="main-content">
         <header class="topbar">
             <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
@@ -360,7 +338,6 @@
         <div id="app-content" class="content-wrapper"></div>
     </main>
 
-    <!-- Экран технических работ -->
     <div class="maintenance" id="maintenance">
         <div class="maintenance-card">
             <h1 class="mnt-title">ТЕХНИЧЕСКИЕ РАБОТЫ</h1>
@@ -370,7 +347,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно входа -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal-box">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -385,9 +361,6 @@
     </div>
 
     <script>
-        // ==========================================
-        // КОНФИГУРАЦИЯ
-        // ==========================================
         const CONFIG = {
             ADMIN_LOGIN: 'nexus-scprp',
             ADMIN_PASS: 'nexus-password-scprp'
@@ -398,9 +371,6 @@
             catch (e) { return fallback; }
         }
 
-        // ==========================================
-        // БАЗА ДАННЫХ (LocalStorage)
-        // ==========================================
         let DB = {
             news: safeParse('nexus_news', [{
                 id: 1, date: new Date().toLocaleDateString('ru-RU'),
@@ -409,13 +379,20 @@
             settings: safeParse('nexus_settings', {
                 ip: 'play.nexus-scp.ru', version: '1.20.1 FORGE',
                 maintenance: false, maintMsg: 'Сервер находится на обновлении. Пожалуйста, зайдите позже.',
-                serverStatus: 'ONLINE', hostingStatus: 'NORMAL'
+                serverStatus: 'ONLINE', hostingStatus: 'NORMAL',
+                onlineCount: '42', projectStatus: 'ЗБТ'
+            }),
+            rules: safeParse('nexus_rules', {
+                discord: `<div class="rules-intro">Незнание правил не освобождает от ответственности.<br>Администрация назначает наказание соразмерно тяжести нарушения.</div><div class="rules-section"><div class="rules-section-title">🌐 1. Общие положения</div><div class="rules-sub"><div class="rules-sub-title">1.1. Незнание правил</div><p>Незнание правил не освобождает от ответственности.</p></div><div class="rules-sub"><div class="rules-sub-title">1.2. Решения администрации</div><p>Администрация вправе принимать решения в нестандартных ситуациях.</p><div class="rules-punish">Мера наказания определяется индивидуально.</div></div></div><div class="rules-section"><div class="rules-section-title">💬 2. Общение</div><div class="rules-sub"><div class="rules-sub-title">2.1. Оскорбления</div><p><span class="rules-label">Запрещено:</span> любые формы оскорблений, унижения достоинства, травли.</p><div class="rules-punish">мут от 1 часа до 3 дней.</div></div></div><div class="rules-bottom-warn">Благодарим за понимание и уважение к другим участникам.</div>`,
+                rp: `<div class="rules-intro">Правила Minecraft-сервера Nexus • SCP-RP. Minecraft 1.20.1 Forge.</div><div class="rules-section"><div class="rules-section-title">1. Основы Roleplay</div><div class="rules-sub"><div class="rules-sub-title">1.1. FearRP</div><p>Ваш персонаж должен бояться за свою жизнь при угрозе оружием.</p></div><div class="rules-sub"><div class="rules-sub-title">1.2. FailRP</div><p>Запрещено совершать действия, невозможные в реальной жизни.</p><div class="rules-punish">бан на 1 день.</div></div></div>`,
+                staff: `<div class="rules-intro">Правила персонала проекта Nexus • SCP-RP.</div><div class="rules-section"><div class="rules-section-title">1. Общие обязанности</div><div class="rules-sub"><div class="rules-sub-title">1.1. Адекватность</div><p>Администратор обязан вести себя адекватно.</p></div></div>`
             })
         };
 
         function saveData() {
             localStorage.setItem('nexus_news', JSON.stringify(DB.news));
             localStorage.setItem('nexus_settings', JSON.stringify(DB.settings));
+            localStorage.setItem('nexus_rules', JSON.stringify(DB.rules));
         }
 
         function applySettings() {
@@ -426,9 +403,6 @@
             if (mnt) { DB.settings.maintenance && !isAdmin ? mnt.classList.add('show') : mnt.classList.remove('show'); }
         }
 
-        // ==========================================
-        // МОНИТОР
-        // ==========================================
         function renderMonitor() {
             const s = DB.settings.serverStatus;
             const h = DB.settings.hostingStatus;
@@ -454,9 +428,6 @@
             `;
         }
 
-        // ==========================================
-        // РОУТЕР
-        // ==========================================
         const routes = {
             '/home': renderHome, '/rules-discord': renderRulesDiscord, '/rules-rp': renderRulesRP,
             '/rules-admin': renderRulesAdmin, '/management': renderManagement, '/staff': renderStaff,
@@ -486,9 +457,6 @@
         window.addEventListener('hashchange', router);
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
-        // ==========================================
-        // СТРАНИЦЫ
-        // ==========================================
         function renderHome(container) {
             const newsHTML = DB.news.map(n => `
                 <div class="panel mouse-glow mb-20">
@@ -514,16 +482,16 @@
                 </div>
 
                 <div class="status-row mb-20">
-                    <div class="status-cell">
+                    <div class="status-cell mouse-glow">
                         <div class="head"><div class="dot"></div><strong>Сервер онлайн</strong></div>
                         <div class="sub">Актуальный статус проекта</div>
                     </div>
-                    <div class="status-cell">
-                        <div class="big">42</div>
+                    <div class="status-cell mouse-glow">
+                        <div class="big">${DB.settings.onlineCount || '0'}</div>
                         <div class="k">Игроков онлайн</div>
                     </div>
-                    <div class="status-cell">
-                        <div class="big" style="color:var(--accent)">ЗБТ</div>
+                    <div class="status-cell mouse-glow">
+                        <div class="big" style="color:var(--accent)">${DB.settings.projectStatus || 'ЗБТ'}</div>
                         <div class="k">Статус проекта</div>
                     </div>
                 </div>
@@ -550,36 +518,8 @@
         function renderRulesDiscord(container) {
             container.innerHTML = `
                 <h1 class="mb-20">Правила Discord</h1>
-                <div class="tab-bar">
-                    <a href="#/rules-discord" class="tab tab-active">Discord</a>
-                    <a href="#/rules-rp" class="tab">Minecraft / RP</a>
-                </div>
                 <div class="rules-content mouse-glow">
-                    <div class="rules-intro">
-                        Незнание правил не освобождает от ответственности.<br>
-                        Администрация назначает наказание соразмерно тяжести нарушения.
-                    </div>
-                    <div class="rules-section">
-                        <div class="rules-section-title">🌐 1. Общие положения</div>
-                        <div class="rules-sub">
-                            <div class="rules-sub-title">1.1. Незнание правил</div>
-                            <p>Незнание правил не освобождает от ответственности.</p>
-                        </div>
-                        <div class="rules-sub">
-                            <div class="rules-sub-title">1.2. Решения администрации</div>
-                            <p>Администрация вправе принимать решения в нестандартных ситуациях.</p>
-                            <div class="rules-punish">Мера наказания определяется индивидуально.</div>
-                        </div>
-                    </div>
-                    <div class="rules-section">
-                        <div class="rules-section-title">💬 2. Общение</div>
-                        <div class="rules-sub">
-                            <div class="rules-sub-title">2.1. Оскорбления</div>
-                            <p><span class="rules-label">Запрещено:</span> любые формы оскорблений, унижения достоинства, травли.</p>
-                            <div class="rules-punish">мут от 1 часа до 3 дней.</div>
-                        </div>
-                    </div>
-                    <div class="rules-bottom-warn">Благодарим за понимание и уважение к другим участникам.</div>
+                    ${DB.rules.discord || '<p>Правила пока не заполнены.</p>'}
                 </div>
             `;
         }
@@ -587,24 +527,8 @@
         function renderRulesRP(container) {
             container.innerHTML = `
                 <h1 class="mb-20">Правила отыгровки (RP)</h1>
-                <div class="tab-bar">
-                    <a href="#/rules-discord" class="tab">Discord</a>
-                    <a href="#/rules-rp" class="tab tab-active">Minecraft / RP</a>
-                </div>
                 <div class="rules-content mouse-glow">
-                    <div class="rules-intro">Правила Minecraft-сервера Nexus • SCP-RP. Minecraft 1.20.1 Forge.</div>
-                    <div class="rules-section">
-                        <div class="rules-section-title">1. Основы Roleplay</div>
-                        <div class="rules-sub">
-                            <div class="rules-sub-title">1.1. FearRP</div>
-                            <p>Ваш персонаж должен бояться за свою жизнь при угрозе оружием.</p>
-                        </div>
-                        <div class="rules-sub">
-                            <div class="rules-sub-title">1.2. FailRP</div>
-                            <p>Запрещено совершать действия, невозможные в реальной жизни.</p>
-                            <div class="rules-punish">бан на 1 день.</div>
-                        </div>
-                    </div>
+                    ${DB.rules.rp || '<p>Правила пока не заполнены.</p>'}
                 </div>
             `;
         }
@@ -612,9 +536,8 @@
         function renderRulesAdmin(container) {
             container.innerHTML = `
                 <h1 class="mb-20">Правила администрации</h1>
-                <div class="panel" style="text-align: center; padding: 50px;">
-                    <h2 style="border: none; color: var(--yellow);">⚠ РАЗДЕЛ В РАЗРАБОТКЕ ⚠</h2>
-                    <p class="mono">Документ находится на стадии утверждения высшим руководством.</p>
+                <div class="rules-content mouse-glow">
+                    ${DB.rules.staff || '<p>Правила пока не заполнены.</p>'}
                 </div>
             `;
         }
@@ -658,6 +581,12 @@
                         <div class="staff-row mouse-glow"><div class="staff-num">02</div><div class="staff-role-name">${s.role}</div><div class="staff-person">${s.name}</div></div>
                     `).join('')}
                 </div>
+                <div class="staff-section">
+                    <div class="staff-section-header">Модерация</div>
+                    ${STAFF.filter(s => s.section === 'mod').map(s => `
+                        <div class="staff-row mouse-glow"><div class="staff-num">03</div><div class="staff-role-name">${s.role}</div><div class="staff-person">${s.name}</div></div>
+                    `).join('')}
+                </div>
             `;
         }
 
@@ -669,9 +598,9 @@
             container.innerHTML = `
                 <h1 class="mb-20">Скачать лаунчер</h1>
                 <div class="grid-3 mb-20">
-                    <div class="panel"><div class="mono muted mb-20">Версия</div><div class="big" style="font-size:1.5rem; color:#fff;">1.0.0</div></div>
-                    <div class="panel"><div class="mono muted mb-20">Размер</div><div class="big" style="font-size:1.5rem; color:#fff;">~50 МБ</div></div>
-                    <div class="panel"><div class="mono muted mb-20">Платформа</div><div class="big" style="font-size:1.5rem; color:#fff;">Windows</div></div>
+                    <div class="panel mouse-glow"><div class="mono muted mb-20">Версия</div><div class="big" style="font-size:1.5rem; color:#fff;">1.0.0</div></div>
+                    <div class="panel mouse-glow"><div class="mono muted mb-20">Размер</div><div class="big" style="font-size:1.5rem; color:#fff;">~50 МБ</div></div>
+                    <div class="panel mouse-glow"><div class="mono muted mb-20">Платформа</div><div class="big" style="font-size:1.5rem; color:#fff;">Windows</div></div>
                 </div>
                 <div class="panel mouse-glow">
                     <h2>Скачать установщик</h2>
@@ -692,9 +621,6 @@
             `;
         }
 
-        // ==========================================
-        // АДМИНКА (В стиле RubixWorld)
-        // ==========================================
         function isAdmin() { return sessionStorage.getItem('nexus_admin') === 'true'; }
 
         function renderAdmin(container) {
@@ -710,6 +636,7 @@
                 <div class="admin-tabs">
                     <button class="admin-tab active" onclick="switchTab('tab-news', this)">Новости</button>
                     <button class="admin-tab" onclick="switchTab('tab-settings', this)">Настройки сервера</button>
+                    <button class="admin-tab" onclick="switchTab('tab-rules', this)">Правила</button>
                     <button class="admin-tab" onclick="switchTab('tab-system', this)">Система</button>
                 </div>
 
@@ -745,6 +672,10 @@
                             <div><label class="mono muted">IP Сервера</label><input type="text" id="setIp" class="input-field" value="${DB.settings.ip}"></div>
                             <div><label class="mono muted">Версия</label><input type="text" id="setVer" class="input-field" value="${DB.settings.version}"></div>
                         </div>
+                        <div class="grid-2 mb-20">
+                            <div><label class="mono muted">Онлайн игроков</label><input type="number" id="setOnlineCount" class="input-field" value="${DB.settings.onlineCount}"></div>
+                            <div><label class="mono muted">Статус проекта</label><input type="text" id="setProjectStatus" class="input-field" value="${DB.settings.projectStatus}"></div>
+                        </div>
                         <div class="grid-2">
                             <div>
                                 <label class="mono muted">Статус СЕРВЕРА</label>
@@ -762,6 +693,25 @@
                             </div>
                         </div>
                         <button class="btn btn-primary mt-15" onclick="saveSettings()">СОХРАНИТЬ</button>
+                    </div>
+                </div>
+
+                <!-- ВКЛАДКА: ПРАВИЛА -->
+                <div class="admin-section" id="tab-rules">
+                    <div class="panel mouse-glow">
+                        <h2>// Редактор правил</h2>
+                        <p class="muted mb-20">Для красивого отображения используйте классы: <code>rules-intro</code>, <code>rules-section</code>, <code>rules-sub</code>, <code>rules-punish</code>.</p>
+                        
+                        <label class="mono muted mb-20" style="display:block;">Правила Discord</label>
+                        <textarea id="rulesDiscord" class="input-field" style="min-height: 200px; font-family: var(--font-mono); font-size: 0.8rem;">${DB.rules.discord}</textarea>
+                        
+                        <label class="mono muted mb-20" style="display:block;">Правила Minecraft / RP</label>
+                        <textarea id="rulesRp" class="input-field" style="min-height: 200px; font-family: var(--font-mono); font-size: 0.8rem;">${DB.rules.rp}</textarea>
+                        
+                        <label class="mono muted mb-20" style="display:block;">Правила персонала</label>
+                        <textarea id="rulesStaff" class="input-field" style="min-height: 200px; font-family: var(--font-mono); font-size: 0.8rem;">${DB.rules.staff}</textarea>
+                        
+                        <button class="btn btn-primary mt-15" onclick="saveRules()">СОХРАНИТЬ ПРАВИЛА</button>
                     </div>
                 </div>
 
@@ -795,6 +745,8 @@
         function saveSettings() {
             DB.settings.ip = document.getElementById('setIp').value;
             DB.settings.version = document.getElementById('setVer').value;
+            DB.settings.onlineCount = document.getElementById('setOnlineCount').value;
+            DB.settings.projectStatus = document.getElementById('setProjectStatus').value;
             DB.settings.serverStatus = document.getElementById('setServerStatus').value;
             DB.settings.hostingStatus = document.getElementById('setHostingStatus').value;
             DB.settings.maintenance = document.getElementById('swMaint').classList.contains('on');
@@ -802,6 +754,14 @@
             saveData();
             applySettings();
             alert('Настройки сохранены!');
+        }
+
+        function saveRules() {
+            DB.rules.discord = document.getElementById('rulesDiscord').value;
+            DB.rules.rp = document.getElementById('rulesRp').value;
+            DB.rules.staff = document.getElementById('rulesStaff').value;
+            saveData();
+            alert('Правила сохранены! Изменения увидят все пользователи.');
         }
 
         function createNews() {
@@ -823,9 +783,6 @@
             switchTab('tab-news', document.querySelector('.admin-tab'));
         }
 
-        // ==========================================
-        // АВТОРИЗАЦИЯ
-        // ==========================================
         function doLogin() {
             const user = document.getElementById('loginUser').value.trim();
             const pass = document.getElementById('loginPass').value.trim();
@@ -864,9 +821,6 @@
         function openModal(id) { const m = document.getElementById(id); if(m) m.classList.add('active'); }
         function closeModal(id) { const m = document.getElementById(id); if(m) m.classList.remove('active'); }
 
-        // ==========================================
-        // ЭФФЕКТ ФОНАРИКА
-        // ==========================================
         function initMouseGlow() {
             const glowElements = document.querySelectorAll('.mouse-glow');
             glowElements.forEach(el => {
