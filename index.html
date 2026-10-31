@@ -384,7 +384,8 @@
         const SUPABASE_URL = 'https://nexus-scprp-site.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4aG5ya2V4anB5dnZnaXZrdGprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0MzE4ODcsImV4cCI6MjEwOTAwNzg4N30.O_R-M2KqG4-fqYNP2qBcaICsqCFHgLVZKV5ghsDRMFg';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Инициализируем базу и называем её db, чтобы не было конфликта с CDN
+        const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // ==========================================
         // БАЗА ДАННЫХ
@@ -406,16 +407,16 @@
         // ==========================================
         async function loadDataFromSupabase() {
             try {
-                const { data: settingsData } = await supabase.from('site_settings').select('*');
+                const { data: settingsData } = await db.from('site_settings').select('*');
                 if (settingsData) settingsData.forEach(row => { DB.settings[row.key] = row.value; });
 
-                const { data: rulesData } = await supabase.from('site_rules').select('*');
+                const { data: rulesData } = await db.from('site_rules').select('*');
                 if (rulesData) rulesData.forEach(row => { DB.rules[row.key] = row.content; });
 
-                const { data: newsData } = await supabase.from('news').select('*').order('id', { ascending: false });
+                const { data: newsData } = await db.from('news').select('*').order('id', { ascending: false });
                 if (newsData) DB.news = newsData;
 
-                const { data: { session } } = await supabase.auth.getSession();
+                const { data: { session } } = await db.auth.getSession();
                 DB.user = session ? session.user : null;
                 if (DB.user) document.getElementById('adminNavLink').style.display = 'flex';
 
@@ -428,7 +429,6 @@
             if (mntMsg) mntMsg.textContent = DB.settings.maintMsg;
             const mnt = document.getElementById('maintenance');
             
-            // Теперь проверяем авторизацию через DB.user, а не sessionStorage
             if (mnt) { 
                 DB.settings.maintenance && !DB.user ? mnt.classList.add('show') : mnt.classList.remove('show'); 
             }
@@ -485,19 +485,15 @@
         }
 
         window.addEventListener('load', async () => {
-            // 1. СРАЗУ рисуем страницу, чтобы экран не был пустым
             router(); 
-            
-            // 2. Затем стучимся в базу за данными
             try {
-                if (supabase) {
+                if (db) {
                     await loadDataFromSupabase();
-                    router(); // Перерисовываем с реальными данными
+                    router(); 
                 }
             } catch (e) {
                 console.error("Ошибка загрузки данных:", e);
             }
-            
             setInterval(updateServerStatus, 120000);
         });
         window.addEventListener('hashchange', router);
@@ -659,7 +655,6 @@
         // ==========================================
         // АДМИНКА
         // ==========================================
-        // Теперь проверяем наличие юзера в Supabase, а не sessionStorage
         function isAdmin() { return DB.user !== null; }
 
         function renderAdmin(container) {
@@ -825,14 +820,14 @@
         }
 
         async function saveSettingToSupabase(key, value) {
-            const { error } = await supabase.from('site_settings').upsert({ key: key, value: value });
+            const { error } = await db.from('site_settings').upsert({ key: key, value: value });
             if (error) console.error(error);
         }
 
         async function saveRules() {
             const rules = { discord: document.getElementById('rulesDiscord').innerHTML, rp: document.getElementById('rulesRp').innerHTML, staff: document.getElementById('rulesStaff').innerHTML };
             for (let key in rules) { 
-                const { error } = await supabase.from('site_rules').upsert({ key: key, content: rules[key] }); 
+                const { error } = await db.from('site_rules').upsert({ key: key, content: rules[key] }); 
                 if(error) console.error(error);
                 DB.rules[key] = rules[key]; 
             }
@@ -845,7 +840,7 @@
             const image = document.getElementById('newsImage').value;
             if (!title || !content) return alert('Заполните поля!');
             const date = new Date().toLocaleDateString('ru-RU');
-            const { data, error } = await supabase.from('news').insert([{ title, content, image, date }]).select();
+            const { data, error } = await db.from('news').insert([{ title, content, image, date }]).select();
             if (error) return alert('Ошибка: ' + error.message);
             DB.news.unshift(data[0]);
             router();
@@ -854,7 +849,7 @@
 
         async function deleteNews(id) {
             if (!confirm('Удалить?')) return;
-            const { error } = await supabase.from('news').delete().eq('id', id);
+            const { error } = await db.from('news').delete().eq('id', id);
             if (error) return alert('Ошибка: ' + error.message);
             DB.news = DB.news.filter(n => n.id !== id);
             router();
@@ -865,7 +860,7 @@
             const email = document.getElementById('loginUser').value.trim();
             const pass = document.getElementById('loginPass').value.trim();
             const err = document.getElementById('loginError');
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+            const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
             if (error) { if(err) err.textContent = '> ОШИБКА: ' + error.message; }
             else {
                 DB.user = data.user;
@@ -876,7 +871,7 @@
         }
 
         async function logout() {
-            await supabase.auth.signOut();
+            await db.auth.signOut();
             DB.user = null;
             document.getElementById('adminNavLink').style.display = 'none';
             window.location.hash = '#/home';
