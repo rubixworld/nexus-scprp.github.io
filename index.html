@@ -8,44 +8,40 @@
     <!-- Шрифты -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- Твой фавикон -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="favicon.png">
     
     <style>
         /* ========================================= */
-        /* VARIABLES                                 */
+        /* VARIABLES (Цвета Нексуса)                 */
         /* ========================================= */
         :root {
             --bg-dark: #05070A;
-            --bg-panel: rgba(17, 22, 32, 0.45);
-            --bg-panel-hover: rgba(25, 32, 46, 0.6);
-            --border: rgba(255, 255, 255, 0.06);
-            --border-hi: rgba(88, 153, 249, 0.3);
+            --bg-panel: rgba(17, 22, 32, 0.5);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-2: rgba(88, 153, 249, 0.3);
+            
             --text-main: #E6EDF3;
             --text-muted: #8B949E;
-
-            --accent-start: #5899F9;
-            --accent-end: #6356F7;
-            --accent-glow: rgba(99, 86, 247, 0.4);
-            --gradient: linear-gradient(90deg, var(--accent-start), var(--accent-end));
-            --gradient-hover: linear-gradient(90deg, #6CA6FF, #7B6CFF);
-
-            --scp-red: #FF4D4D;
-            --scp-green: #2ECC71;
-            --scp-yellow: #F1C40F;
+            
+            --accent: #5899F9;
+            --accent-2: #6356F7;
+            --cyan: #00E5FF;
+            --grad: linear-gradient(90deg, var(--accent), var(--accent-2));
+            
+            --green: #2ECC71;
+            --yellow: #F1C40F;
+            --red: #FF4D4D;
 
             --font-main: 'Inter', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
             --sidebar-width: 260px;
-            --radius-lg: 16px;
-            --radius-md: 12px;
-            --radius-sm: 8px;
+            --radius: 12px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        html { scroll-behavior: smooth; }
+        
         body {
             background-color: var(--bg-dark);
             color: var(--text-main);
@@ -57,649 +53,242 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ========================================= */
-        /* BACKGROUND                                */
-        /* ========================================= */
+        /* Фон */
         .bg-image-layer {
-            position: fixed;
-            inset: 0;
-            z-index: -2;
-            background-image: url('bg.png'); /* Твоя картинка */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            position: fixed; inset: 0; z-index: -2;
+            background-image: url('bg.png');
+            background-size: cover; background-position: center;
             background-color: #05070A;
         }
         .bg-image-layer::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(5,7,10,0.8) 0%, rgba(5,7,10,0.4) 100%);
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(5,7,10,0.85) 0%, rgba(5,7,10,0.5) 100%);
             backdrop-filter: blur(3px);
         }
 
-        /* ========================================= */
-        /* TYPOGRAPHY                                */
-        /* ========================================= */
+        /* Типографика */
         .mono { font-family: var(--font-mono); }
         .muted { color: var(--text-muted); }
-        h1, h2, h3 { font-weight: 700; letter-spacing: -0.5px; }
-        h1 { font-size: 2.2rem; margin-bottom: 24px; color: #fff; }
-        h2 { font-size: 1.4rem; margin-bottom: 20px; color: #fff; }
+        h1, h2, h3 { font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        h1 { font-size: 2rem; margin-bottom: 20px; color: #fff; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; color: var(--accent); }
         p { line-height: 1.6; margin-bottom: 15px; color: #B0B8C4; font-size: 0.95rem; }
-        a { text-decoration: none; color: inherit; transition: color 0.2s; }
+        a { text-decoration: none; color: inherit; transition: 0.2s; }
 
-        /* ========================================= */
-        /* SIDEBAR                                   */
-        /* ========================================= */
+        /* Сайдбар */
         .sidebar {
             width: var(--sidebar-width);
             background: rgba(8, 10, 15, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid var(--border);
-            position: fixed;
-            top: 0; bottom: 0; left: 0;
-            display: flex; flex-direction: column;
-            z-index: 100;
-            padding: 20px 12px;
+            backdrop-filter: blur(20px); border-right: 1px solid var(--border);
+            position: fixed; top: 0; bottom: 0; left: 0;
+            display: flex; flex-direction: column; z-index: 100; padding: 20px 12px;
+            transition: transform 0.3s;
         }
-
-        .brand {
-            padding: 10px 12px 30px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .brand img { width: 36px; height: 36px; filter: drop-shadow(0 0 10px var(--accent-glow)); }
+        .brand { padding: 10px 12px 30px; cursor: pointer; display: flex; align-items: center; gap: 12px; }
+        .brand img { width: 36px; height: 36px; filter: drop-shadow(0 0 10px var(--accent)); }
         .brand-text { font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; color: #fff; }
         .brand-sub { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); letter-spacing: 1px; }
 
         .nav-menu { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
         .nav-menu::-webkit-scrollbar { width: 0px; }
-
-        .nav-group-title {
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            padding: 20px 12px 10px;
-            opacity: 0.6;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
+        .nav-group-title { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); padding: 20px 12px 10px; opacity: 0.6; }
+        
         .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            border-radius: var(--radius-md);
-            transition: all 0.2s ease;
-            position: relative;
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+            font-size: 0.9rem; font-weight: 500; color: var(--text-muted);
+            border-radius: var(--radius); transition: 0.2s;
         }
-        .nav-link:hover {
-            background: rgba(255, 255, 255, 0.04);
-            color: var(--text-main);
-        }
+        .nav-link:hover { background: rgba(255, 255, 255, 0.04); color: var(--text-main); }
         .nav-link.active {
-            background: rgba(88, 153, 249, 0.1);
-            color: var(--accent-start);
-            font-weight: 600;
-            box-shadow: inset 3px 0 0 var(--accent-start);
+            background: rgba(88, 153, 249, 0.1); color: var(--accent);
+            font-weight: 600; box-shadow: inset 3px 0 0 var(--accent);
         }
-
+        
         .sidebar-footer {
-            padding: 15px 12px;
-            background: rgba(0,0,0,0.2);
-            border-radius: var(--radius-md);
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-main);
-            border: 1px solid var(--border);
+            padding: 15px 12px; background: rgba(0,0,0,0.3); border-radius: var(--radius);
+            font-family: var(--font-mono); font-size: 0.75rem; display: flex; align-items: center; gap: 10px;
+            color: var(--text-main); border: 1px solid var(--border);
         }
-        .status-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: var(--scp-green);
-            box-shadow: 0 0 10px var(--scp-green);
-        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
 
-        /* ========================================= */
-        /* MAIN CONTENT                              */
-        /* ========================================= */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-            position: relative;
-            z-index: 1;
-        }
-
+        /* Основной контент */
+        .main-content { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; z-index: 1; }
+        
         .topbar {
-            height: 72px;
-            border-bottom: 1px solid var(--border);
-            background: rgba(5, 7, 10, 0.3);
-            backdrop-filter: blur(12px);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 30px;
-            position: sticky;
-            top: 0;
-            z-index: 50;
+            height: 72px; border-bottom: 1px solid var(--border);
+            background: rgba(5, 7, 10, 0.4); backdrop-filter: blur(12px);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 30px; position: sticky; top: 0; z-index: 50;
         }
+        .mobile-menu-btn { display: none; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+        
+        .content-wrapper { padding: 40px; max-width: 1300px; margin: 0 auto; width: 100%; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .content-wrapper {
-            padding: 40px;
-            max-width: 1300px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .content-wrapper > * {
-            animation: slideInUp 0.4s ease-out backwards;
-        }
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ========================================= */
-        /* BUTTONS                                   */
-        /* ========================================= */
+        /* UI Компоненты */
         .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-family: var(--font-main);
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 12px 24px; border-radius: 50px; font-family: var(--font-main);
+            font-size: 0.9rem; font-weight: 700; cursor: pointer; border: none; transition: 0.3s;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
+        .btn-primary { background: var(--grad); color: #fff; box-shadow: 0 4px 15px rgba(99, 86, 247, 0.3); }
+        .btn-primary:hover { filter: brightness(1.2); box-shadow: 0 6px 20px rgba(99, 86, 247, 0.5); transform: translateY(-2px); }
+        .btn-outline { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        .btn-danger { background: rgba(255, 77, 77, 0.1); color: var(--red); border: 1px solid rgba(255, 77, 77, 0.3); }
+        .btn-danger:hover { background: rgba(255, 77, 77, 0.2); }
+        
+        .w-100 { width: 100%; } .mt-15 { margin-top: 15px; } .mb-20 { margin-bottom: 20px; }
 
-        .btn-primary {
-            background: var(--gradient);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(99, 86, 247, 0.3);
-        }
-        .btn-primary:hover {
-            background: var(--gradient-hover);
-            box-shadow: 0 6px 20px rgba(99, 86, 247, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .btn-outline {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-        }
-        .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: rgba(255, 77, 77, 0.1);
-            color: var(--scp-red);
-            border: 1px solid rgba(255, 77, 77, 0.3);
-        }
-        .btn-danger:hover {
-            background: rgba(255, 77, 77, 0.2);
-            box-shadow: 0 4px 15px rgba(255, 77, 77, 0.2);
-        }
-
-        .w-100 { width: 100%; }
-        .mt-15 { margin-top: 15px; }
-        .mb-20 { margin-bottom: 20px; }
-
-        /* ========================================= */
-        /* PANELS                                    */
-        /* ========================================= */
+        /* Панели (Glassmorphism + Фонарик) */
         .panel {
-            background: var(--bg-panel);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 30px;
-            margin-bottom: 24px;
-            position: relative;
-            overflow: hidden;
-            transition: border-color 0.3s;
+            background: var(--bg-panel); backdrop-filter: blur(16px);
+            border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 30px; margin-bottom: 24px; position: relative; overflow: hidden;
         }
-
         .mouse-glow::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(
-                150px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-                rgba(255, 255, 255, 0.12),
-                transparent 100%
-            );
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 0;
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(150px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(88,153,249,0.15), transparent 100%);
+            opacity: 0; transition: 0.3s; pointer-events: none; z-index: 0;
         }
         .mouse-glow:hover::before { opacity: 1; }
         .panel > * { position: relative; z-index: 1; }
 
-        /* ========================================= */
-        /* GRIDS                                     */
-        /* ========================================= */
+        /* Сетки */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
         .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
 
-        /* ========================================= */
-        /* STAFF / ПЕРСОНАЛ                          */
-        /* ========================================= */
-        .staff-section { margin-bottom: 30px; }
-
-        .staff-section-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 18px;
-            border-radius: var(--radius-md);
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 16px;
-        }
-        .staff-section-header.high {
-            background: rgba(255, 77, 77, 0.05);
-            border-color: rgba(255, 77, 77, 0.2);
-        }
-
-        .staff-row {
-            display: grid;
-            grid-template-columns: 50px 1fr auto;
-            gap: 15px;
-            align-items: center;
-            padding: 16px 20px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid transparent;
-            border-radius: var(--radius-md);
-            margin-bottom: 8px;
-            transition: all 0.2s;
-        }
-        .staff-row:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
-            transform: translateX(4px);
-        }
-
-        .staff-num {
-            font-family: var(--font-mono);
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--accent-start);
-        }
-        .staff-role-name { font-weight: 600; font-size: 1rem; color: #fff; }
-        .staff-person {
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            color: #fff;
-            padding: 6px 14px;
-            border-radius: 50px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .staff-vacant {
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            padding: 6px 14px;
-            border-radius: 50px;
-            background: transparent;
-            border: 1px dashed var(--border);
-        }
-
-        /* ========================================= */
-        /* MANAGEMENT / РУКОВОДСТВО                  */
-        /* ========================================= */
-        .mgmt-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            margin-bottom: 30px;
-        }
-
-        .mgmt-card {
-            background: rgba(17, 22, 32, 0.5);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 40px 25px 30px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-        .mgmt-card:hover {
-            border-color: rgba(88, 153, 249, 0.3);
-            background: rgba(25, 32, 46, 0.6);
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.5);
-        }
-
-        .mgmt-level {
-            position: absolute;
-            top: 15px; right: 15px;
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--accent-start);
-            padding: 4px 12px;
-            border-radius: 50px;
-            background: rgba(88, 153, 249, 0.1);
-            border: 1px solid rgba(88, 153, 249, 0.2);
-        }
-
-        .mgmt-tag {
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: var(--accent-start);
-            letter-spacing: 2px;
-            margin-bottom: 12px;
-        }
-
-        .mgmt-role {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 20px;
-        }
-
-        .mgmt-name {
-            font-family: var(--font-mono);
-            font-size: 1.6rem;
-            font-weight: 800;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-
-        /* ========================================= */
-        /* RULES / ПРАВИЛА                           */
-        /* ========================================= */
-        .rules-intro {
-            padding: 20px 24px;
-            background: rgba(241, 196, 15, 0.05);
-            border: 1px solid rgba(241, 196, 15, 0.2);
-            border-radius: var(--radius-md);
-            margin-bottom: 24px;
-            color: #E6EDF3;
-            line-height: 1.6;
-        }
-
-        .rules-section {
-            background: var(--bg-panel);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .rules-section-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 18px 24px;
-            background: rgba(255, 255, 255, 0.02);
-            border-bottom: 1px solid var(--border);
-        }
-        .rules-section-num { font-family: var(--font-mono); font-weight: 700; color: var(--accent-start); }
-        .rules-section-title { font-size: 1rem; font-weight: 700; color: #fff; }
-
-        .rules-body { padding: 24px; }
-        .rule-item {
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            display: flex;
-            gap: 15px;
-            color: #B0B8C4;
-        }
-        .rule-item:last-child { border-bottom: none; }
-        .rule-num { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-start); font-weight: 600; min-width: 40px; }
-
-        .rule-list { list-style: none; margin-top: 8px; }
-        .rule-list li { position: relative; padding-left: 18px; margin-bottom: 6px; font-size: 0.9rem; }
-        .rule-list li::before { content: '•'; position: absolute; left: 0; color: var(--accent-start); font-size: 1.2rem; line-height: 1; top: -2px; }
-
-        /* ========================================= */
-        /* MONITOR                                   */
-        /* ========================================= */
+        /* ================= HERO & MONITOR ================= */
+        .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; min-height: 60vh; margin-bottom: 40px; }
+        .hero-title { font-size: clamp(40px, 6vw, 80px); font-weight: 900; line-height: 1; margin-bottom: 20px; }
+        .hero-title .grad { background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
         .server-monitor {
-            background: rgba(10, 14, 20, 0.6);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            aspect-ratio: 1 / 1;
-            max-width: 480px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+            background: rgba(10, 14, 20, 0.7); backdrop-filter: blur(16px);
+            border: 1px solid var(--border); border-radius: var(--radius);
+            aspect-ratio: 1 / 1; width: 100%; display: flex; flex-direction: column;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); position: relative; overflow: hidden;
         }
-        .monitor-head {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-        .monitor-body {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-        }
-        .pulse-wrap {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        .pulse-ring {
-            position: absolute;
-            inset: 15px;
-            border-radius: 50%;
-            border: 2px solid var(--monitor-color, var(--scp-green));
-            opacity: 0.5;
-            animation: pulseRing 2s infinite;
-        }
-        .pulse-dot {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--monitor-color, var(--scp-green));
-            box-shadow: 0 0 30px var(--monitor-color, var(--scp-green));
-        }
+        .monitor-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); }
+        .monitor-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        .pulse-wrap { position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .pulse-ring { position: absolute; inset: 15px; border-radius: 50%; border: 2px solid var(--accent); opacity: 0.5; animation: pulseRing 2s infinite; }
+        .pulse-dot { width: 60px; height: 60px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 30px var(--accent); }
         @keyframes pulseRing { 0%{transform:scale(1);opacity:0.8;} 100%{transform:scale(1.5);opacity:0;} }
-
-        .monitor-label { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
-        .monitor-code {
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            text-align: left;
-            background: rgba(0,0,0,0.4);
-            border-radius: var(--radius-sm);
-            padding: 16px;
-            width: 100%;
-            line-height: 1.6;
-            border-left: 3px solid var(--monitor-color, var(--scp-green));
-        }
-        .monitor-code .c-key { color: var(--text-muted); }
-        .monitor-code .c-val { color: #fff; font-weight: 600; }
-
+        .monitor-label { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 15px; }
+        .monitor-code { font-family: var(--font-mono); font-size: 0.75rem; text-align: left; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 16px; width: 100%; border-left: 3px solid var(--accent); }
+        .monitor-code .c-key { color: var(--text-muted); } .monitor-code .c-val { color: #fff; font-weight: 600; }
         .monitor-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--border); }
         .mstat { padding: 15px 10px; text-align: center; border-right: 1px solid var(--border); }
         .mstat:last-child { border-right: none; }
         .mk { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
         .mv { font-size: 0.85rem; font-weight: 700; color: #fff; }
 
-        /* ========================================= */
-        /* NEWS & FORMS                              */
-        /* ========================================= */
-        .news-item {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 20px;
-            margin-bottom: 16px;
-            transition: all 0.2s;
-        }
-        .news-item:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
-        .news-date { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-start); margin-bottom: 8px; }
-        .news-title { font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
-        .news-content { color: #B0B8C4; font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; }
+        /* ================= STATUS & CARDS ================= */
+        .status-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-panel); backdrop-filter: blur(10px); }
+        .status-cell { padding: 30px; border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; }
+        .status-cell:last-child { border-right: none; }
+        .status-cell .head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .status-cell .head .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
+        .status-cell .head strong { font-size: 18px; color: #fff; }
+        .status-cell .sub { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+        .status-cell .big { font-size: 24px; font-weight: 900; color: #fff; margin-bottom: 5px; }
+        .status-cell .k { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
 
-        .input-field {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            color: #fff;
-            padding: 14px 16px;
-            margin-bottom: 12px;
-            font-family: var(--font-main);
-            outline: none;
-            transition: all 0.2s;
-        }
-        .input-field:focus {
-            border-color: var(--accent-start);
-            box-shadow: 0 0 0 3px rgba(88, 153, 249, 0.15);
-            background: rgba(0, 0, 0, 0.5);
-        }
+        .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .pcard { padding: 30px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-panel); backdrop-filter: blur(10px); display: flex; flex-direction: column; cursor: pointer; }
+        .pcard:hover { border-color: var(--accent); background: rgba(88, 153, 249, 0.05); transform: translateY(-3px); }
+        .pcard .icon { width: 45px; height: 45px; border-radius: 12px; background: rgba(88,153,249,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--accent); margin-bottom: 20px; }
+        .pcard h3 { font-size: 20px; margin-bottom: 12px; color: #fff; }
+        .pcard p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; flex: 1; }
+        .pcard .open { font-family: var(--font-mono); font-size: 12px; color: var(--accent); font-weight: 700; }
+
+        /* ================= RULES & TABS ================= */
+        .tab-bar { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        .tab { padding: 10px 20px; border: 1px solid var(--border); border-radius: 50px; background: rgba(255,255,255,0.02); color: var(--text-muted); font-family: var(--font-mono); font-size: 12px; cursor: pointer; transition: 0.2s; }
+        .tab:hover, .tab.tab-active { background: var(--grad); color: #fff; border-color: transparent; }
+        
+        .rules-content { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 35px; backdrop-filter: blur(10px); }
+        .rules-intro { border-left: 3px solid var(--accent); padding-left: 20px; color: #C9D1D9; font-size: 14px; line-height: 1.7; margin-bottom: 35px; }
+        .rules-section { margin-bottom: 30px; }
+        .rules-section-title { font-size: 18px; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; }
+        .rules-sub { margin-bottom: 20px; }
+        .rules-sub-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+        .rules-label { color: var(--accent); font-weight: 700; }
+        .rules-punish { font-family: var(--font-mono); font-size: 12px; background: rgba(0,0,0,0.3); padding: 12px 16px; border-left: 2px solid var(--yellow); border-radius: 0 8px 8px 0; margin-top: 10px; color: var(--text-muted); }
+        .rules-bottom-warn { text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--yellow); padding: 20px; border: 1px dashed rgba(241, 196, 15, 0.3); border-radius: var(--radius); margin-top: 30px; }
+
+        /* ================= STAFF ================= */
+        .staff-section { margin-bottom: 30px; }
+        .staff-section-header { display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-radius: var(--radius); background: rgba(255,255,255,0.03); border: 1px solid var(--border); font-weight: 700; color: #fff; margin-bottom: 15px; }
+        .staff-section-header.high { background: rgba(255, 77, 77, 0.1); border-color: rgba(255,77,77,0.3); }
+        .staff-row { display: grid; grid-template-columns: 50px 1fr auto; gap: 15px; align-items: center; padding: 15px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius); margin-bottom: 8px; border: 1px solid transparent; }
+        .staff-row:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+        .staff-num { font-family: var(--font-mono); font-size: 1rem; font-weight: 700; color: var(--accent); }
+        .staff-role-name { font-weight: 600; color: #fff; }
+        .staff-person { font-family: var(--font-mono); font-size: 0.85rem; padding: 5px 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 50px; color: #fff; }
+        .staff-vacant { font-family: var(--font-mono); font-size: 0.8rem; padding: 5px 12px; border: 1px dashed var(--border); border-radius: 50px; color: var(--text-muted); }
+
+        .mgmt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 30px; }
+        .mgmt-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 40px 20px 30px; text-align: center; position: relative; backdrop-filter: blur(10px); }
+        .mgmt-level { position: absolute; top: 15px; right: 15px; font-family: var(--font-mono); font-size: 0.7rem; padding: 4px 10px; border-radius: 50px; background: rgba(88, 153, 249, 0.1); color: var(--accent); border: 1px solid rgba(88, 153, 249, 0.3); }
+        .mgmt-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 10px; }
+        .mgmt-role { font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 20px; }
+        .mgmt-name { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-top: 20px; border-top: 1px solid var(--border); }
+
+        /* ================= FORMS & ADMIN ================= */
+        .input-field { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; color: #fff; padding: 12px 15px; margin-bottom: 12px; font-family: var(--font-main); outline: none; transition: 0.2s; }
+        .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,153,249,0.15); }
         textarea.input-field { resize: vertical; min-height: 120px; }
+        
+        .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .admin-tab { padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); cursor: pointer; }
+        .admin-tab.active { background: var(--grad); color: #fff; border-color: transparent; }
+        .admin-section { display: none; }
+        .admin-section.active { display: block; animation: fadeIn 0.3s; }
+        
+        .adm-card { background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px; }
+        .adm-toggle { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; color: #fff; }
+        .adm-switch { position: relative; width: 44px; height: 24px; background: rgba(255,255,255,0.1); border-radius: 50px; cursor: pointer; transition: 0.3s; }
+        .adm-switch::after { content: ''; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: 0.3s; }
+        .adm-switch.on { background: var(--green); }
+        .adm-switch.on::after { left: 23px; }
 
-        /* ========================================= */
-        /* MODALS                                    */
-        /* ========================================= */
-        .modal-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            display: none; align-items: center; justify-content: center;
-            z-index: 1000; opacity: 0; transition: opacity 0.3s;
-        }
-        .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-box {
-            background: rgba(17, 22, 32, 0.9);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            width: 100%; max-width: 400px; padding: 30px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            position: relative;
-            transform: scale(0.95); transition: transform 0.3s;
-        }
-        .modal-overlay.active .modal-box { transform: scale(1); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .close-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; transition: color 0.2s; }
-        .close-btn:hover { color: var(--scp-red); }
+        /* Модалки */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 400px; padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; backdrop-filter: blur(20px); }
+        .close-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
+        .close-btn:hover { color: var(--red); }
 
-        /* ========================================= */
-        /* RESPONSIVE                                */
-        /* ========================================= */
+        /* Тех работы */
+        .maintenance { position: fixed; inset: 0; z-index: 9999; background: rgba(5,7,10,0.95); backdrop-filter: blur(20px); display: none; align-items: center; justify-content: center; }
+        .maintenance.show { display: flex; }
+        .maintenance-card { background: var(--bg-panel); border: 1px solid var(--border); border-top: 3px solid var(--yellow); padding: 50px; border-radius: var(--radius); text-align: center; max-width: 500px; width: 90%; }
+        .mnt-title { color: #fff; font-size: 2rem; margin-bottom: 15px; }
+        .mnt-progress { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; margin-top: 20px; }
+        .mnt-progress i { display: block; height: 100%; width: 40%; background: var(--yellow); animation: slide 2s infinite linear; }
+        @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+
+        /* Адаптив */
         @media (max-width: 900px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
             .main-content { margin-left: 0; }
             .mobile-menu-btn { display: block; }
-            .grid-2, .grid-3, .grid-4, .mgmt-grid { grid-template-columns: 1fr; }
+            .grid-2, .grid-3, .grid-4, .cards, .status-row, .hero, .mgmt-grid { grid-template-columns: 1fr; }
             .content-wrapper { padding: 20px; }
-            .staff-row { grid-template-columns: 1fr; gap: 10px; text-align: center; }
+            .topbar-info { display: none; }
+            .status-cell { border-right: none; border-bottom: 1px solid var(--border); }
+            .staff-row { grid-template-columns: 40px 1fr; gap: 10px; text-align: center; }
             .staff-row > div { justify-self: center; }
         }
-
-        /* Карточки соцсетей */
-        a.panel img {
-            transition: transform 0.3s ease, filter 0.3s ease;
-        }
-        a.panel:hover img {
-            transform: scale(1.1);
-            filter: drop-shadow(0 0 10px var(--accent-start));
-        }
-
-        /* ========================================= */
-        /* MAINTENANCE (Тех. работы)                 */
-        /* ========================================= */
-        .maintenance {
-            position: fixed; inset: 0; z-index: 9999;
-            background: rgba(5, 7, 10, 0.95); backdrop-filter: blur(20px);
-            display: none; align-items: center; justify-content: center;
-        }
-        .maintenance.show { display: flex; }
-        .maintenance-card {
-            background: var(--bg-panel); border: 1px solid var(--border);
-            padding: 50px; border-radius: var(--radius-lg); text-align: center;
-            max-width: 500px; width: 90%; position: relative; overflow: hidden;
-        }
-        .maintenance-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--scp-yellow);
-        }
-        .mnt-tag { font-family: var(--font-mono); color: var(--scp-yellow); margin-bottom: 20px; letter-spacing: 2px; }
-        .mnt-title { font-size: 2rem; color: #fff; margin-bottom: 15px; }
-        .mnt-msg { color: var(--text-muted); margin-bottom: 30px; line-height: 1.6; }
-        .mnt-progress { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
-        .mnt-progress i { display: block; height: 100%; width: 40%; background: var(--scp-yellow); animation: slide 2s infinite linear; }
-        @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
-
-        /* ========================================= */
-        /* ADMIN SETTINGS                            */
-        /* ========================================= */
-        .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .admin-tab { padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-muted); cursor: pointer; transition: 0.2s; }
-        .admin-tab.active { background: var(--gradient); color: #fff; border-color: transparent; }
-        .admin-section { display: none; }
-        .admin-section.active { display: block; animation: fadeIn 0.3s; }
-        .news-admin-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: var(--radius-md); margin-bottom: 10px; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
 
-    <!-- Слой для фона -->
     <div class="bg-image-layer"></div>
 
     <!-- Сайдбар -->
@@ -714,51 +303,40 @@
 
         <nav class="nav-menu">
             <a href="#/home" class="nav-link" data-page="home">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                Главная
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> Главная
             </a>
-            
             <div class="nav-group-title">// ДОКУМЕНТАЦИЯ</div>
             <a href="#/rules-discord" class="nav-link" data-page="rules-discord">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                Правила Discord
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Правила Discord
             </a>
             <a href="#/rules-rp" class="nav-link" data-page="rules-rp">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                Правила отыгровки
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> Правила отыгровки
             </a>
             <a href="#/rules-admin" class="nav-link" data-page="rules-admin">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                Правила администрации
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Правила администрации
             </a>
             
             <div class="nav-group-title">// ПЕРСОНАЛ</div>
             <a href="#/management" class="nav-link" data-page="management">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                Руководство
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg> Руководство
             </a>
             <a href="#/staff" class="nav-link" data-page="staff">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                Список персонала
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Список персонала
             </a>
             <a href="#/roles" class="nav-link" data-page="roles">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                Роли проекта
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line></svg> Роли проекта
             </a>
             
             <div class="nav-group-title">// СИСТЕМА</div>
             <a href="#/download" class="nav-link" data-page="download">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                Скачать лаунчер
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Скачать лаунчер
             </a>
             <a href="#/about" class="nav-link" data-page="about">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                О нас / Связь
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> О нас / Связь
             </a>
             
-            <a href="#/admin" class="nav-link" id="adminNavLink" style="display:none; color: var(--scp-red);">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                [ADMIN] Панель
+            <a href="#/admin" class="nav-link" id="adminNavLink" style="display:none; color: var(--red);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> [ADMIN] Панель
             </a>
         </nav>
 
@@ -772,7 +350,7 @@
     <main class="main-content">
         <header class="topbar">
             <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
-            <div style="display: flex; gap: 20px; font-size: 0.8rem; color: var(--text-muted);" class="mono">
+            <div class="topbar-info mono" style="display:flex; gap:20px; font-size:0.8rem;">
                 <span>[ NODE: NEXUS-01 ]</span>
                 <span>[ SECURITY: LEVEL-4 ]</span>
             </div>
@@ -785,9 +363,8 @@
     <!-- Экран технических работ -->
     <div class="maintenance" id="maintenance">
         <div class="maintenance-card">
-            <div class="mnt-tag">// SYSTEM_MAINTENANCE</div>
             <h1 class="mnt-title">ТЕХНИЧЕСКИЕ РАБОТЫ</h1>
-            <p class="mnt-msg" id="mntMessage">Сервер находится на обновлении. Пожалуйста, зайдите позже.</p>
+            <p class="muted mb-20" id="mntMessage">Сервер находится на обновлении. Пожалуйста, зайдите позже.</p>
             <div class="mnt-progress"><i></i></div>
             <button class="btn btn-outline mt-15" onclick="location.reload()">ОБНОВИТЬ СТРАНИЦУ</button>
         </div>
@@ -796,14 +373,13 @@
     <!-- Модальное окно входа -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal-box">
-            <div class="modal-header">
-                <h3 class="mono" style="color: var(--accent-start);">> ACCESS TERMINAL</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 class="mono" style="color: var(--accent); margin:0;">> ACCESS TERMINAL</h3>
                 <button class="close-btn" onclick="closeModal('loginModal')">✕</button>
             </div>
-            <p class="mono muted mb-20" style="font-size: 0.8rem;">Требуется уровень допуска 4.</p>
             <input type="text" id="loginUser" class="input-field" placeholder="LOGIN" autocomplete="off">
             <input type="password" id="loginPass" class="input-field" placeholder="PASSWORD" autocomplete="new-password">
-            <div id="loginError" class="mono mb-20" style="color: var(--scp-red); min-height: 18px; font-size: 0.8rem;"></div>
+            <div id="loginError" class="mono mb-20" style="color: var(--red); min-height: 18px; font-size: 0.8rem;"></div>
             <button class="btn btn-primary w-100" onclick="doLogin()">ВОЙТИ В СИСТЕМУ</button>
         </div>
     </div>
@@ -813,48 +389,29 @@
         // КОНФИГУРАЦИЯ
         // ==========================================
         const CONFIG = {
-            SUPABASE_URL: '', 
-            SUPABASE_KEY: '',
             ADMIN_LOGIN: 'nexus-scprp',
             ADMIN_PASS: 'nexus-password-scprp'
         };
 
         function safeParse(key, fallback) {
-            try {
-                const item = localStorage.getItem(key);
-                return item ? JSON.parse(item) : fallback;
-            } catch (e) {
-                return fallback;
-            }
+            try { const item = localStorage.getItem(key); return item ? JSON.parse(item) : fallback; } 
+            catch (e) { return fallback; }
         }
 
         // ==========================================
-        // БАЗА ДАННЫХ
+        // БАЗА ДАННЫХ (LocalStorage)
         // ==========================================
         let DB = {
-            news: safeParse('nexus_news', [
-                {
-                    id: 1,
-                    date: new Date().toLocaleDateString('ru-RU'),
-                    title: 'Запуск терминала Nexus',
-                    content: 'Добро пожаловать на официальный портал проекта Nexus • SCP-RP. Мы начинаем открытое тестирование. Следите за обновлениями.',
-                    image: ''
-                }
-            ]),
+            news: safeParse('nexus_news', [{
+                id: 1, date: new Date().toLocaleDateString('ru-RU'),
+                title: 'Запуск терминала Nexus', content: 'Добро пожаловать на официальный портал проекта Nexus • SCP-RP. Мы начинаем открытое тестирование.', image: ''
+            }]),
             settings: safeParse('nexus_settings', {
-                ip: 'play.nexus-scp.ru',
-                version: '1.20.1 FORGE',
-                maintenance: false,
-                maintMsg: 'Сервер находится на обновлении. Пожалуйста, зайдите позже.',
-                serverStatus: 'ONLINE',
-                hostingStatus: 'NORMAL'
+                ip: 'play.nexus-scp.ru', version: '1.20.1 FORGE',
+                maintenance: false, maintMsg: 'Сервер находится на обновлении. Пожалуйста, зайдите позже.',
+                serverStatus: 'ONLINE', hostingStatus: 'NORMAL'
             })
         };
-
-        if (!DB.settings) DB.settings = {};
-        if (!DB.settings.ip) DB.settings.ip = 'play.nexus-scp.ru';
-        if (!DB.settings.version) DB.settings.version = '1.20.1 FORGE';
-        if (!DB.news) DB.news = [];
 
         function saveData() {
             localStorage.setItem('nexus_news', JSON.stringify(DB.news));
@@ -862,98 +419,36 @@
         }
 
         function applySettings() {
-            try {
-                const monIp = document.getElementById('mon-ip');
-                if (monIp) monIp.textContent = DB.settings.ip;
-                const monVer = document.getElementById('mon-ver');
-                if (monVer) monVer.textContent = DB.settings.version;
-                const mntMsg = document.getElementById('mntMessage');
-                if (mntMsg) mntMsg.textContent = DB.settings.maintMsg;
-                
-                const mnt = document.getElementById('maintenance');
-                const isAdmin = sessionStorage.getItem('nexus_admin') === 'true';
-                if (mnt) {
-                    if (DB.settings.maintenance && !isAdmin) mnt.classList.add('show');
-                    else mnt.classList.remove('show');
-                }
-            } catch(e) { console.error('Ошибка в applySettings', e); }
+            const mntMsg = document.getElementById('mntMessage');
+            if (mntMsg) mntMsg.textContent = DB.settings.maintMsg;
+            const mnt = document.getElementById('maintenance');
+            const isAdmin = sessionStorage.getItem('nexus_admin') === 'true';
+            if (mnt) { DB.settings.maintenance && !isAdmin ? mnt.classList.add('show') : mnt.classList.remove('show'); }
         }
-
-        // ==========================================
-        // ДАННЫЕ
-        // ==========================================
-        const STAFF_LIST = [
-            { num: 14, section: 'high', role: 'Основатель проекта', name: 'Sayderty', tag: 'FOUNDER', level: 'LEVEL-5' },
-            { num: 13, section: 'high', role: 'Руководитель проекта', name: 'dark_esz', tag: 'MANAGER', level: 'LEVEL-5' },
-            { num: 12, section: 'high', role: 'Куратор', name: 'NewStalker3041', tag: 'CURATOR', level: 'LEVEL-4' },
-            { num: 11, section: 'admin', role: 'Главный администратор', name: null },
-            { num: 10, section: 'admin', role: 'Старший администратор', name: null },
-            { num: 9, section: 'admin', role: 'Администратор', name: null },
-            { num: 8, section: 'admin', role: 'Младший администратор', name: 'GeoMatrixi' },
-            { num: 7, section: 'mod', role: 'Главный модератор', name: null },
-            { num: 6, section: 'mod', role: 'Старший модератор', name: null },
-            { num: 5, section: 'mod', role: 'Модератор', name: null },
-            { num: 4, section: 'mod', role: 'Младший модератор', name: 'Iskatel_Misteki3' },
-            { num: 3, section: 'trainee', role: 'Стажёр', name: null },
-            { num: 2, section: 'builder', role: 'Главный билдер', name: null },
-            { num: 1, section: 'builder', role: 'Билдер', name: null }
-        ];
-
-        const STAFF_SECTIONS = {
-            high:    { title: 'Высшее руководство', icon: '👑', class: 'high' },
-            admin:   { title: 'Администрация', icon: '⚙️', class: '' },
-            mod:     { title: 'Модерация', icon: '🛡️', class: '' },
-            trainee: { title: 'Стажёры', icon: '📋', class: '' },
-            builder: { title: 'Билдерский отдел', icon: '🔨', class: '' }
-        };
-
-        const DISCORD_RULES = [
-            { num: 'I', icon: '🌐', title: 'Общие положения', rules: [
-                { n: '1.1', t: 'Незнание правил не освобождает от ответственности.' },
-                { n: '1.2', t: 'Администрация вправе принимать решения в нестандартных ситуациях.' },
-                { n: '1.3', t: 'Попытка обойти правила рассматривается как нарушение.' },
-                { n: '1.4', t: 'Все решения администрации должны быть аргументированы.' },
-                { n: '1.5', t: 'Оскорбления или давление на администрацию запрещены.' }
-            ]},
-            { num: 'II', icon: '💬', title: 'Общение', rules: [
-                { n: '2.1', t: 'Запрещены любые формы оскорблений и дискриминации.' },
-                { n: '2.2', t: 'Запрещено разжигание конфликтов и провокации.' },
-                { n: '2.3', t: 'Спам запрещён. К спаму относится:', list: ['повторение сообщений', 'чрезмерное использование эмодзи', 'флуд', 'массовое упоминание'] },
-                { n: '2.4', t: 'Запрещено злоупотребление CAPS LOCK.' }
-            ]},
-            { num: 'III', icon: '🛡️', title: 'Безопасность', rules: [
-                { n: '3.1', t: 'Запрещено публиковать вредоносные ссылки.' },
-                { n: '3.2', t: 'Запрещено выдавать себя за администрацию.' },
-                { n: '3.3', t: 'Запрещено распространять личную информацию.' }
-            ]}
-        ];
 
         // ==========================================
         // МОНИТОР
         // ==========================================
-        function getMonitorState() {
+        function renderMonitor() {
             const s = DB.settings.serverStatus;
             const h = DB.settings.hostingStatus;
-            if (h === 'UNPAID') return { color: 'var(--scp-red)', label: 'HOSTING_UNPAID', code: '<span class="c-hash"># [CRITICAL]</span>\n<span class="c-key">server:</span> <span class="c-val">' + s + '</span>\n<span class="c-key">hosting:</span> <span class="c-val">UNPAID</span>' };
-            if (h === 'PROBLEMS') return { color: '#FF8C42', label: 'HOSTING_PROBLEMS', code: '<span class="c-hash"># [ERROR]</span>\n<span class="c-key">server:</span> <span class="c-val">' + s + '</span>' };
-            if (s === 'OFFLINE') return { color: 'var(--scp-red)', label: 'SERVER_OFFLINE', code: '<span class="c-hash"># [OFFLINE]</span>\n<span class="c-key">server:</span> <span class="c-val">OFFLINE</span>' };
-            return { color: 'var(--scp-green)', label: 'SYSTEM_NOMINAL', code: '<span class="c-hash"># [NOMINAL]</span>\n<span class="c-key">server:</span> <span class="c-val">ONLINE</span>\n<span class="c-key">uptime:</span> <span class="c-val">99.9%</span>' };
-        }
+            let color = 'var(--green)', label = 'SYSTEM_NOMINAL', code = '<span class="c-key">server:</span> <span class="c-val">ONLINE</span>';
+            
+            if (h === 'UNPAID' || s === 'OFFLINE') { color = 'var(--red)'; label = 'SYSTEM_OFFLINE'; code = '<span class="c-key">server:</span> <span class="c-val">OFFLINE</span>'; }
+            else if (s === 'MAINTENANCE') { color = 'var(--yellow)'; label = 'MAINTENANCE'; code = '<span class="c-key">server:</span> <span class="c-val">MAINTENANCE</span>'; }
 
-        function renderMonitor() {
-            const state = getMonitorState();
             return `
-                <div class="server-monitor" style="--monitor-color: ${state.color};">
-                    <div class="monitor-head"><span class="mono">NEXUS_NETWORK</span><span class="mono live-indicator"><span class="live-dot"></span>LIVE</span></div>
+                <div class="server-monitor" style="border-top: 3px solid ${color};">
+                    <div class="monitor-head"><span class="mono">NEXUS_NETWORK</span><span class="mono" style="color:${color}">● LIVE</span></div>
                     <div class="monitor-body">
-                        <div class="pulse-wrap"><div class="pulse-ring"></div><div class="pulse-dot"></div></div>
-                        <div class="monitor-label mono">${state.label}</div>
-                        <div class="monitor-code mono">${state.code}</div>
+                        <div class="pulse-wrap"><div class="pulse-ring" style="border-color:${color}"></div><div class="pulse-dot" style="background:${color}; box-shadow:0 0 30px ${color}"></div></div>
+                        <div class="monitor-label mono" style="color:${color}">${label}</div>
+                        <div class="monitor-code mono" style="border-left-color:${color}">${code}</div>
                     </div>
                     <div class="monitor-stats">
-                        <div class="mstat"><div class="mk mono">Server</div><div class="mv" id="mon-ip" style="font-size:0.6rem; word-break:break-all;">${DB.settings.ip}</div></div>
-                        <div class="mstat"><div class="mk mono">Version</div><div class="mv" id="mon-ver" style="font-size:0.65rem;">${DB.settings.version}</div></div>
-                        <div class="mstat"><div class="mk mono">Access</div><div class="mv">PUBLIC</div></div>
+                        <div class="mstat"><div class="mk mono">Server</div><div class="mv mono">${DB.settings.ip}</div></div>
+                        <div class="mstat"><div class="mk mono">Version</div><div class="mv mono">${DB.settings.version}</div></div>
+                        <div class="mstat"><div class="mk mono">Access</div><div class="mv mono">PUBLIC</div></div>
                     </div>
                 </div>
             `;
@@ -980,134 +475,208 @@
             if (content) {
                 content.innerHTML = '';
                 try { routes[hash](content); } 
-                catch (err) {
-                    console.error("Ошибка:", err);
-                    content.innerHTML = `<div class="panel"><h2 style="color:red">Ошибка загрузки страницы</h2></div>`;
-                }
+                catch (err) { console.error(err); content.innerHTML = `<div class="panel"><h2 style="color:red">Ошибка загрузки страницы</h2></div>`; }
             }
-            
-            if (window.innerWidth <= 900) {
-                const sb = document.getElementById('sidebar');
-                if (sb) sb.classList.remove('open');
-            }
+            if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
             applySettings();
             initMouseGlow(); 
         }
 
-        window.addEventListener('load', () => { router(); });
+        window.addEventListener('load', router);
         window.addEventListener('hashchange', router);
-
-        function toggleSidebar() { 
-            const sb = document.getElementById('sidebar');
-            if (sb) sb.classList.toggle('open'); 
-        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
         // ==========================================
         // СТРАНИЦЫ
         // ==========================================
         function renderHome(container) {
             const newsHTML = DB.news.map(n => `
-                <div class="news-item">
-                    <div class="news-date">> DATE: ${n.date}</div>
-                    <div class="news-title">${n.title}</div>
-                    <div class="news-content">${n.content}</div>
+                <div class="panel mouse-glow mb-20">
+                    <div class="mono" style="color:var(--accent); font-size:0.8rem; margin-bottom:5px;">> DATE: ${n.date}</div>
+                    <h3 style="color:#fff; margin-bottom:10px;">${n.title}</h3>
+                    <p style="white-space:pre-wrap;">${n.content}</p>
                     ${n.image ? `<img src="${n.image}" style="width:100%; border-radius:8px; margin-top:10px;">` : ''}
                 </div>
             `).join('');
 
             container.innerHTML = `
-                <div class="grid-2 mb-20" style="gap: 30px; align-items: stretch;">
-                    <div class="panel" style="background: linear-gradient(180deg, rgba(88,153,249,0.1) 0%, transparent 100%); display: flex; flex-direction: column; justify-content: center;">
-                        <h1 style="font-size: 2.5rem; margin-bottom: 10px;">NEXUS • SCP-RP</h1>
-                        <p class="mono" style="color: var(--accent-start); margin-bottom: 20px;">> ДОБРО ПОЖАЛОВАТЬ В ТЕРМИНАЛ ФОНДА</p>
-                        <p>Официальный портал ролевого проекта по вселенной SCP. Ознакомьтесь с документацией перед началом игры.</p>
-                        <div style="margin-top: 25px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <div class="hero">
+                    <div>
+                        <h1 class="hero-title">NEXUS<br><span class="grad">SCP-RP</span></h1>
+                        <p class="mono" style="color:var(--accent); letter-spacing:2px; margin-bottom:20px;">> ДОБРО ПОЖАЛОВАТЬ В ТЕРМИНАЛ ФОНДА</p>
+                        <p>Официальный портал ролевого проекта по вселенной SCP в Minecraft 1.20.1 Forge. Ознакомьтесь с документацией, правилами и списком персонала перед началом игры.</p>
+                        <div style="margin-top: 30px; display: flex; gap: 15px;">
                             <a href="#/rules-rp" class="btn btn-outline">ПРАВИЛА RP</a>
                             <a href="#/download" class="btn btn-primary">СКАЧАТЬ ЛАУНЧЕР</a>
                         </div>
                     </div>
-                    <div style="display: flex; align-items: center; justify-content: center;">
-                        ${renderMonitor()}
+                    <div>${renderMonitor()}</div>
+                </div>
+
+                <div class="status-row mb-20">
+                    <div class="status-cell">
+                        <div class="head"><div class="dot"></div><strong>Сервер онлайн</strong></div>
+                        <div class="sub">Актуальный статус проекта</div>
+                    </div>
+                    <div class="status-cell">
+                        <div class="big">42</div>
+                        <div class="k">Игроков онлайн</div>
+                    </div>
+                    <div class="status-cell">
+                        <div class="big" style="color:var(--accent)">ЗБТ</div>
+                        <div class="k">Статус проекта</div>
                     </div>
                 </div>
-                <h2>// ПОСЛЕДНИЕ ОБНОВЛЕНИЯ</h2>
-                <div class="panel">${newsHTML || '<p class="muted">Новостей пока нет.</p>'}</div>
+
+                <h2>// Разделы проекта</h2>
+                <div class="cards mb-20">
+                    <a href="#/rules-discord" class="pcard mouse-glow">
+                        <div class="icon">📜</div><h3>Правила</h3>
+                        <p>Правила Discord-сервера и Minecraft-сервера проекта.</p>
+                        <div class="open">Открыть →</div>
+                    </a>
+                    <a href="#/staff" class="pcard mouse-glow">
+                        <div class="icon">👑</div><h3>Персонал</h3>
+                        <p>Список руководства и администрации проекта Nexus.</p>
+                        <div class="open">Открыть →</div>
+                    </a>
+                </div>
+
+                <h2>// Последние обновления</h2>
+                ${newsHTML || '<p class="muted">Новостей пока нет.</p>'}
             `;
         }
 
         function renderRulesDiscord(container) {
-            const sectionsHTML = DISCORD_RULES.map(sec => {
-                const rulesHTML = sec.rules.map(r => {
-                    const numHTML = r.n ? `<div class="rule-num">${r.n}</div>` : '';
-                    let content = `<div class="rule-text">${r.t}`;
-                    if (r.list) content += '<ul class="rule-list">' + r.list.map(li => `<li>${li}</li>`).join('') + '</ul>';
-                    content += '</div>';
-                    return `<div class="rule-item">${numHTML}${content}</div>`;
-                }).join('');
-                return `
-                    <div class="rules-section">
-                        <div class="rules-section-header">
-                            <span class="rules-section-icon">${sec.icon}</span>
-                            <span class="rules-section-num">${sec.num}</span>
-                            <span class="rules-section-title">${sec.title}</span>
-                        </div>
-                        <div class="rules-body">${rulesHTML}</div>
+            container.innerHTML = `
+                <h1 class="mb-20">Правила Discord</h1>
+                <div class="tab-bar">
+                    <a href="#/rules-discord" class="tab tab-active">Discord</a>
+                    <a href="#/rules-rp" class="tab">Minecraft / RP</a>
+                </div>
+                <div class="rules-content mouse-glow">
+                    <div class="rules-intro">
+                        Незнание правил не освобождает от ответственности.<br>
+                        Администрация назначает наказание соразмерно тяжести нарушения.
                     </div>
-                `;
-            }).join('');
-            container.innerHTML = `<h1 class="mb-20">Правила Discord</h1>${sectionsHTML}`;
+                    <div class="rules-section">
+                        <div class="rules-section-title">🌐 1. Общие положения</div>
+                        <div class="rules-sub">
+                            <div class="rules-sub-title">1.1. Незнание правил</div>
+                            <p>Незнание правил не освобождает от ответственности.</p>
+                        </div>
+                        <div class="rules-sub">
+                            <div class="rules-sub-title">1.2. Решения администрации</div>
+                            <p>Администрация вправе принимать решения в нестандартных ситуациях.</p>
+                            <div class="rules-punish">Мера наказания определяется индивидуально.</div>
+                        </div>
+                    </div>
+                    <div class="rules-section">
+                        <div class="rules-section-title">💬 2. Общение</div>
+                        <div class="rules-sub">
+                            <div class="rules-sub-title">2.1. Оскорбления</div>
+                            <p><span class="rules-label">Запрещено:</span> любые формы оскорблений, унижения достоинства, травли.</p>
+                            <div class="rules-punish">мут от 1 часа до 3 дней.</div>
+                        </div>
+                    </div>
+                    <div class="rules-bottom-warn">Благодарим за понимание и уважение к другим участникам.</div>
+                </div>
+            `;
         }
 
         function renderRulesRP(container) {
-            container.innerHTML = `<h1 class="mb-20">Правила отыгровки (RP)</h1><div class="panel"><h2>1. Основы Roleplay</h2><p>1.1. FearRP — бойся за жизнь.</p><p>1.2. FailRP — запрещено нереалистичное поведение.</p></div>`;
+            container.innerHTML = `
+                <h1 class="mb-20">Правила отыгровки (RP)</h1>
+                <div class="tab-bar">
+                    <a href="#/rules-discord" class="tab">Discord</a>
+                    <a href="#/rules-rp" class="tab tab-active">Minecraft / RP</a>
+                </div>
+                <div class="rules-content mouse-glow">
+                    <div class="rules-intro">Правила Minecraft-сервера Nexus • SCP-RP. Minecraft 1.20.1 Forge.</div>
+                    <div class="rules-section">
+                        <div class="rules-section-title">1. Основы Roleplay</div>
+                        <div class="rules-sub">
+                            <div class="rules-sub-title">1.1. FearRP</div>
+                            <p>Ваш персонаж должен бояться за свою жизнь при угрозе оружием.</p>
+                        </div>
+                        <div class="rules-sub">
+                            <div class="rules-sub-title">1.2. FailRP</div>
+                            <p>Запрещено совершать действия, невозможные в реальной жизни.</p>
+                            <div class="rules-punish">бан на 1 день.</div>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         function renderRulesAdmin(container) {
-            container.innerHTML = `<h1 class="mb-20">Правила администрации</h1><div class="panel" style="text-align: center; padding: 50px;"><h2 style="border: none; color: var(--scp-yellow);">⚠ РАЗДЕЛ В РАЗРАБОТКЕ ⚠</h2></div>`;
+            container.innerHTML = `
+                <h1 class="mb-20">Правила администрации</h1>
+                <div class="panel" style="text-align: center; padding: 50px;">
+                    <h2 style="border: none; color: var(--yellow);">⚠ РАЗДЕЛ В РАЗРАБОТКЕ ⚠</h2>
+                    <p class="mono">Документ находится на стадии утверждения высшим руководством.</p>
+                </div>
+            `;
         }
 
         function renderManagement(container) {
-            const management = STAFF_LIST.filter(s => s.section === 'high');
-            const cardsHTML = management.map(s => `
-                <div class="mgmt-card">
+            const STAFF_LIST = [
+                { role: 'Основатель проекта', name: 'Sayderty', tag: 'FOUNDER', level: 'LEVEL-5' },
+                { role: 'Руководитель проекта', name: 'dark_esz', tag: 'MANAGER', level: 'LEVEL-5' },
+                { role: 'Куратор', name: 'NewStalker3041', tag: 'CURATOR', level: 'LEVEL-4' }
+            ];
+            const cards = STAFF_LIST.map(s => `
+                <div class="mgmt-card mouse-glow">
                     <div class="mgmt-level">${s.level}</div>
                     <div class="mgmt-tag">// ${s.tag}</div>
                     <div class="mgmt-role">${s.role}</div>
                     <div class="mgmt-name">${s.name}</div>
                 </div>
             `).join('');
-            container.innerHTML = `<h1 class="mb-20">Руководство проекта</h1><div class="mgmt-grid">${cardsHTML}</div>`;
+            container.innerHTML = `<h1 class="mb-20">Руководство проекта</h1><div class="mgmt-grid">${cards}</div>`;
         }
 
         function renderStaff(container) {
-            const order = ['high', 'admin', 'mod', 'trainee', 'builder'];
-            const sectionsHTML = order.map(key => {
-                const meta = STAFF_SECTIONS[key];
-                const members = STAFF_LIST.filter(s => s.section === key);
-                if (!members.length) return '';
-                const rowsHTML = members.map(s => `
-                    <div class="staff-row">
-                        <div class="staff-num">${String(s.num).padStart(2, '0')}</div>
-                        <div class="staff-role-name">${s.role}</div>
-                        ${s.name ? `<div class="staff-person">${s.name}</div>` : `<div class="staff-vacant">VACANT</div>`}
-                    </div>
-                `).join('');
-                return `<div class="staff-section"><div class="staff-section-header ${meta.class}">${meta.title}</div>${rowsHTML}</div>`;
-            }).join('');
-            container.innerHTML = `<h1 class="mb-20">Персонал проекта</h1>${sectionsHTML}`;
+            const STAFF = [
+                { section: 'high', role: 'Основатель проекта', name: 'Sayderty' },
+                { section: 'high', role: 'Руководитель проекта', name: 'dark_esz' },
+                { section: 'high', role: 'Куратор', name: 'NewStalker3041' },
+                { section: 'admin', role: 'Младший администратор', name: 'GeoMatrixi' },
+                { section: 'mod', role: 'Младший модератор', name: 'Iskatel_Misteki3' },
+            ];
+            container.innerHTML = `
+                <h1 class="mb-20">Персонал проекта</h1>
+                <div class="staff-section">
+                    <div class="staff-section-header high">Высшее руководство</div>
+                    ${STAFF.filter(s => s.section === 'high').map(s => `
+                        <div class="staff-row mouse-glow"><div class="staff-num">01</div><div class="staff-role-name">${s.role}</div><div class="staff-person">${s.name}</div></div>
+                    `).join('')}
+                </div>
+                <div class="staff-section">
+                    <div class="staff-section-header">Администрация</div>
+                    ${STAFF.filter(s => s.section === 'admin').map(s => `
+                        <div class="staff-row mouse-glow"><div class="staff-num">02</div><div class="staff-role-name">${s.role}</div><div class="staff-person">${s.name}</div></div>
+                    `).join('')}
+                </div>
+            `;
         }
 
         function renderRoles(container) {
-            container.innerHTML = `<h1 class="mb-20">Роли проекта</h1><div class="panel"><h2>// Список ролей (Заглушка)</h2><p>Описание появится позже.</p></div>`;
+            container.innerHTML = `<h1 class="mb-20">Роли проекта</h1><div class="panel"><h2>// Список ролей (Заглушка)</h2><p>Описание игровых ролей, классов и уровней допуска появится позже.</p></div>`;
         }
 
         function renderDownload(container) {
             container.innerHTML = `
                 <h1 class="mb-20">Скачать лаунчер</h1>
-                <div class="panel">
-                    <h2>Версия 1.0.0</h2>
-                    <p>Сборка: Minecraft 1.20.1 Forge, моды на SCP, оптимизация.</p>
-                    <a href="#" class="btn btn-primary mt-15" onclick="alert('Ссылка появится позже')">СКАЧАТЬ (Windows)</a>
+                <div class="grid-3 mb-20">
+                    <div class="panel"><div class="mono muted mb-20">Версия</div><div class="big" style="font-size:1.5rem; color:#fff;">1.0.0</div></div>
+                    <div class="panel"><div class="mono muted mb-20">Размер</div><div class="big" style="font-size:1.5rem; color:#fff;">~50 МБ</div></div>
+                    <div class="panel"><div class="mono muted mb-20">Платформа</div><div class="big" style="font-size:1.5rem; color:#fff;">Windows</div></div>
+                </div>
+                <div class="panel mouse-glow">
+                    <h2>Скачать установщик</h2>
+                    <a href="#" class="btn btn-primary" style="padding:20px 40px; font-size:1.1rem;" onclick="alert('Ссылка появится позже')">⬇ СКАЧАТЬ ЛАУНЧЕР</a>
+                    <div class="rules-punish mt-15">⚠ Если антивирус ругается — это ложное срабатывание.</div>
                 </div>
             `;
         }
@@ -1115,65 +684,135 @@
         function renderAbout(container) {
             container.innerHTML = `
                 <h1 class="mb-20">О нас / Связь</h1>
-                <div class="grid-3">
-                    <a href="#" class="panel" style="text-align: center; padding: 40px 20px;">
-                        <img src="icon-discord.png" alt="Discord" style="width: 48px; margin-bottom: 15px;">
-                        <h3>Discord</h3>
-                    </a>
-                    <a href="#" class="panel" style="text-align: center; padding: 40px 20px;">
-                        <img src="icon-telegram.png" alt="Telegram" style="width: 48px; margin-bottom: 15px;">
-                        <h3>Telegram</h3>
-                    </a>
-                    <a href="#" class="panel" style="text-align: center; padding: 40px 20px;">
-                        <img src="icon-vk.png" alt="ВКонтакте" style="width: 48px; margin-bottom: 15px;">
-                        <h3>ВКонтакте</h3>
-                    </a>
+                <div class="grid-3 mb-20">
+                    <a href="#" class="panel mouse-glow" style="text-align: center; padding: 40px 20px;"><img src="icon-discord.png" style="width:48px; margin-bottom:15px;"><h3>Discord</h3></a>
+                    <a href="#" class="panel mouse-glow" style="text-align: center; padding: 40px 20px;"><img src="icon-telegram.png" style="width:48px; margin-bottom:15px;"><h3>Telegram</h3></a>
+                    <a href="#" class="panel mouse-glow" style="text-align: center; padding: 40px 20px;"><img src="icon-vk.png" style="width:48px; margin-bottom:15px;"><h3>ВКонтакте</h3></a>
                 </div>
             `;
         }
 
         // ==========================================
-        // АДМИНКА
+        // АДМИНКА (В стиле RubixWorld)
         // ==========================================
         function isAdmin() { return sessionStorage.getItem('nexus_admin') === 'true'; }
 
         function renderAdmin(container) {
-            if (!isAdmin()) {
-                window.location.hash = '#/home';
-                return;
-            }
-            const newsList = DB.news.map(n => `
-                <div class="news-admin-item">
-                    <div><strong>${n.title}</strong></div>
-                    <button class="btn btn-danger" onclick="deleteNews(${n.id})">✕</button>
-                </div>
-            `).join('');
+            if (!isAdmin()) { window.location.hash = '#/home'; return; }
 
             container.innerHTML = `
-                <div class="panel mb-20" style="border-left: 3px solid var(--scp-red);">
-                    <h1 style="color: var(--scp-red);">ADMIN CONTROL PANEL</h1>
+                <div class="panel mb-20" style="border-left: 3px solid var(--red);">
+                    <h1 style="color: var(--red); margin:0;">ADMIN CONTROL PANEL</h1>
+                    <p class="mono mt-15">> STATUS: ACCESS GRANTED</p>
                     <button class="btn btn-outline mt-15" onclick="logout()">ЗАВЕРШИТЬ СЕАНС</button>
                 </div>
-                <div class="panel">
-                    <h2>// Создать новость</h2>
-                    <input type="text" id="newsTitle" class="input-field" placeholder="Заголовок">
-                    <textarea id="newsContent" class="input-field" placeholder="Текст"></textarea>
-                    <button class="btn btn-primary" onclick="createNews()">ОПУБЛИКОВАТЬ</button>
+
+                <div class="admin-tabs">
+                    <button class="admin-tab active" onclick="switchTab('tab-news', this)">Новости</button>
+                    <button class="admin-tab" onclick="switchTab('tab-settings', this)">Настройки сервера</button>
+                    <button class="admin-tab" onclick="switchTab('tab-system', this)">Система</button>
                 </div>
-                <div class="panel">
-                    <h2>// Список новостей</h2>
-                    ${newsList}
+
+                <!-- ВКЛАДКА: НОВОСТИ -->
+                <div class="admin-section active" id="tab-news">
+                    <div class="grid-2">
+                        <div class="panel">
+                            <h2>// Создать новость</h2>
+                            <input type="text" id="newsTitle" class="input-field" placeholder="Заголовок">
+                            <textarea id="newsContent" class="input-field" placeholder="Текст новости..."></textarea>
+                            <input type="url" id="newsImage" class="input-field" placeholder="Ссылка на картинку (URL)">
+                            <button class="btn btn-primary" onclick="createNews()">ОПУБЛИКОВАТЬ</button>
+                        </div>
+                        <div class="panel">
+                            <h2>// Опубликовано</h2>
+                            <div id="adminNewsList">
+                                ${DB.news.map(n => `
+                                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); padding:10px 15px; border-radius:8px; margin-bottom:10px; border:1px solid var(--border);">
+                                        <div><strong style="color:#fff">${n.title}</strong></div>
+                                        <button class="btn btn-danger" style="padding:5px 10px;" onclick="deleteNews(${n.id})">✕</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ВКЛАДКА: НАСТРОЙКИ -->
+                <div class="admin-section" id="tab-settings">
+                    <div class="panel mouse-glow">
+                        <h2>// Монитор сервера</h2>
+                        <div class="grid-2 mb-20">
+                            <div><label class="mono muted">IP Сервера</label><input type="text" id="setIp" class="input-field" value="${DB.settings.ip}"></div>
+                            <div><label class="mono muted">Версия</label><input type="text" id="setVer" class="input-field" value="${DB.settings.version}"></div>
+                        </div>
+                        <div class="grid-2">
+                            <div>
+                                <label class="mono muted">Статус СЕРВЕРА</label>
+                                <select id="setServerStatus" class="input-field">
+                                    <option value="ONLINE" ${DB.settings.serverStatus==='ONLINE'?'selected':''}>ONLINE</option>
+                                    <option value="OFFLINE" ${DB.settings.serverStatus==='OFFLINE'?'selected':''}>OFFLINE</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="mono muted">Статус ХОСТИНГА</label>
+                                <select id="setHostingStatus" class="input-field">
+                                    <option value="NORMAL" ${DB.settings.hostingStatus==='NORMAL'?'selected':''}>NORMAL</option>
+                                    <option value="UNPAID" ${DB.settings.hostingStatus==='UNPAID'?'selected':''}>UNPAID</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary mt-15" onclick="saveSettings()">СОХРАНИТЬ</button>
+                    </div>
+                </div>
+
+                <!-- ВКЛАДКА: СИСТЕМА -->
+                <div class="admin-section" id="tab-system">
+                    <div class="panel">
+                        <h2>// Режим технических работ</h2>
+                        <p class="muted">Закрывает сайт заглушкой для всех, кроме администраторов.</p>
+                        <div class="adm-toggle">
+                            <span>Включить тех. работы</span>
+                            <div class="adm-switch ${DB.settings.maintenance?'on':''}" id="swMaint" onclick="toggleMaint()"></div>
+                        </div>
+                        <input type="text" id="setMaintMsg" class="input-field mt-15" value="${DB.settings.maintMsg}" placeholder="Сообщение на экране">
+                        <button class="btn btn-primary mt-15" onclick="saveSettings()">ПРИМЕНИТЬ</button>
+                    </div>
                 </div>
             `;
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function toggleMaint() {
+            document.getElementById('swMaint').classList.toggle('on');
+        }
+
+        function saveSettings() {
+            DB.settings.ip = document.getElementById('setIp').value;
+            DB.settings.version = document.getElementById('setVer').value;
+            DB.settings.serverStatus = document.getElementById('setServerStatus').value;
+            DB.settings.hostingStatus = document.getElementById('setHostingStatus').value;
+            DB.settings.maintenance = document.getElementById('swMaint').classList.contains('on');
+            DB.settings.maintMsg = document.getElementById('setMaintMsg').value;
+            saveData();
+            applySettings();
+            alert('Настройки сохранены!');
         }
 
         function createNews() {
             const title = document.getElementById('newsTitle').value;
             const content = document.getElementById('newsContent').value;
+            const image = document.getElementById('newsImage').value;
             if (!title || !content) return alert('Заполните поля!');
-            DB.news.unshift({ id: Date.now(), date: new Date().toLocaleDateString('ru-RU'), title, content, image: '' });
+            DB.news.unshift({ id: Date.now(), date: new Date().toLocaleDateString('ru-RU'), title, content, image });
             saveData();
             router();
+            switchTab('tab-news', document.querySelector('.admin-tab'));
         }
 
         function deleteNews(id) {
@@ -1181,8 +820,12 @@
             DB.news = DB.news.filter(n => n.id !== id);
             saveData();
             router();
+            switchTab('tab-news', document.querySelector('.admin-tab'));
         }
 
+        // ==========================================
+        // АВТОРИЗАЦИЯ
+        // ==========================================
         function doLogin() {
             const user = document.getElementById('loginUser').value.trim();
             const pass = document.getElementById('loginPass').value.trim();
@@ -1217,18 +860,16 @@
             });
         }
 
-        if (isAdmin()) {
-            const al = document.getElementById('adminNavLink');
-            if (al) al.style.display = 'flex';
-        }
-
+        if (isAdmin()) document.getElementById('adminNavLink').style.display = 'flex';
         function openModal(id) { const m = document.getElementById(id); if(m) m.classList.add('active'); }
         function closeModal(id) { const m = document.getElementById(id); if(m) m.classList.remove('active'); }
 
+        // ==========================================
+        // ЭФФЕКТ ФОНАРИКА
+        // ==========================================
         function initMouseGlow() {
-            const glowElements = document.querySelectorAll('.panel, .mgmt-card, .news-item, .staff-row');
+            const glowElements = document.querySelectorAll('.mouse-glow');
             glowElements.forEach(el => {
-                el.classList.add('mouse-glow');
                 el.addEventListener('mousemove', (e) => {
                     const rect = el.getBoundingClientRect();
                     el.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
