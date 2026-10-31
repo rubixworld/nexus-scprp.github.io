@@ -392,6 +392,7 @@
         // ==========================================
         let DB = {
             news: [],
+            staff: [],
             settings: {
                 ip: 'play.nexus-scp.ru', version: '1.20.1 FORGE',
                 maintenance: false, maintMsg: 'Сервер находится на обновлении. Пожалуйста, зайдите позже.',
@@ -410,6 +411,21 @@
                 const { data: settingsData } = await db.from('site_settings').select('*');
                 if (settingsData) settingsData.forEach(row => { DB.settings[row.key] = row.value; });
 
+                // Загружаем персонал
+                const staffData = settingsData.find(row => row.key === 'staff_data');
+                if (staffData && staffData.value && Array.isArray(staffData.value)) {
+                    DB.staff = staffData.value;
+                } else {
+                    // Если в базе пусто, ставим дефолтный список
+                    DB.staff = [
+                        { section: 'high', role: 'Основатель проекта', name: 'Sayderty', tag: 'FOUNDER', level: 'LEVEL-5' },
+                        { section: 'high', role: 'Руководитель проекта', name: 'dark_esz', tag: 'MANAGER', level: 'LEVEL-5' },
+                        { section: 'high', role: 'Куратор', name: 'NewStalker3041', tag: 'CURATOR', level: 'LEVEL-4' },
+                        { section: 'admin', role: 'Младший администратор', name: 'GeoMatrixi', tag: '', level: '' },
+                        { section: 'mod', role: 'Младший модератор', name: 'Iskatel_Misteki3', tag: '', level: '' }
+                    ];
+                }
+                
                 const { data: rulesData } = await db.from('site_rules').select('*');
                 if (rulesData) rulesData.forEach(row => { DB.rules[row.key] = row.content; });
 
@@ -573,43 +589,50 @@
         }
 
         function renderManagement(container) {
-            const STAFF_LIST = [
-                { role: 'Основатель проекта', name: 'Sayderty', tag: 'FOUNDER', level: 'LEVEL-5' },
-                { role: 'Руководитель проекта', name: 'dark_esz', tag: 'MANAGER', level: 'LEVEL-5' },
-                { role: 'Куратор', name: 'NewStalker3041', tag: 'CURATOR', level: 'LEVEL-4' }
-            ];
-            const cards = STAFF_LIST.map(s => `
+            const management = DB.staff.filter(s => s.section === 'high');
+            const cards = management.map(s => `
                 <div class="mgmt-card mouse-glow">
-                    <div class="mgmt-level">${s.level}</div><div class="mgmt-tag">// ${s.tag}</div>
-                    <div class="mgmt-role">${s.role}</div><div class="mgmt-name">${s.name}</div>
+                    <div class="mgmt-level">${s.level || 'LEVEL-5'}</div>
+                    <div class="mgmt-tag">// ${s.tag || 'STAFF'}</div>
+                    <div class="mgmt-role">${s.role}</div>
+                    <div class="mgmt-name">${s.name}</div>
                 </div>
             `).join('');
             container.innerHTML = `<h1 class="mb-20">Руководство проекта</h1><div class="mgmt-grid">${cards}</div>`;
         }
 
         function renderStaff(container) {
-            const STAFF = [
-                { section: 'high', role: 'Основатель проекта', name: 'Sayderty' },
-                { section: 'high', role: 'Руководитель проекта', name: 'dark_esz' },
-                { section: 'high', role: 'Куратор', name: 'NewStalker3041' },
-                { section: 'admin', role: 'Младший администратор', name: 'GeoMatrixi' },
-                { section: 'mod', role: 'Младший модератор', name: 'Iskatel_Misteki3' },
-            ];
-            container.innerHTML = `
-                <h1 class="mb-20">Персонал проекта</h1>
-                <div class="staff-section">
-                    <div class="staff-section-header high">Высшее руководство</div>
-                    ${STAFF.filter(s => s.section === 'high').map(s => `<div class="staff-row mouse-glow"><div class="staff-num">01</div><div class="staff-role-name">${s.role}</div><div class="staff-person">${s.name}</div></div>`).join('')}
-                </div>
-                <div class="staff-section">
-                    <div class="staff-section-header">Администрация</div>
-                    ${STAFF.filter(s => s.section === 'admin').map(s => `<div class="staff-row mouse-glow"><div class="staff-num">02</div><div class="staff-role-name">${s.role}</div><div class="staff-person">${s.name}</div></div>`).join('')}
-                </div>
-                <div class="staff-section">
-                    <div class="staff-section-header">Модерация</div>
-                    ${STAFF.filter(s => s.section === 'mod').map(s => `<div class="staff-row mouse-glow"><div class="staff-num">03</div><div class="staff-role-name">${s.role}</div><div class="staff-person">${s.name}</div></div>`).join('')}
-                </div>
-            `;
+            const sections = ['high', 'admin', 'mod', 'trainee', 'builder'];
+            const sectionNames = { 
+                high: 'Высшее руководство', 
+                admin: 'Администрация', 
+                mod: 'Модерация', 
+                trainee: 'Стажёры', 
+                builder: 'Билдерский отдел' 
+            };
+
+            let html = `<h1 class="mb-20">Персонал проекта</h1>`;
+            
+            sections.forEach(sec => {
+                const members = DB.staff.filter(s => s.section === sec);
+                if (members.length === 0) return; // Пропускаем пустые отделы
+                
+                html += `<div class="staff-section">
+                            <div class="staff-section-header ${sec === 'high' ? 'high' : ''}">${sectionNames[sec]}</div>`;
+                
+                members.forEach((s, i) => {
+                    html += `
+                        <div class="staff-row mouse-glow">
+                            <div class="staff-num">${String(i + 1).padStart(2, '0')}</div>
+                            <div class="staff-role-name">${s.role}</div>
+                            <div class="${s.name ? 'staff-person' : 'staff-vacant'}">${s.name || 'VACANT'}</div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            });
+
+            container.innerHTML = html;
         }
 
         function renderRoles(container) {
@@ -670,6 +693,7 @@
                 <div class="admin-tabs">
                     <button class="admin-tab active" onclick="switchTab('tab-news', this)">Новости</button>
                     <button class="admin-tab" onclick="switchTab('tab-settings', this)">Настройки сервера</button>
+                    <button class="admin-tab" onclick="switchTab('tab-staff', this)">Персонал</button> <!-- НОВАЯ КНОПКА -->
                     <button class="admin-tab" onclick="switchTab('tab-rules', this)">Правила</button>
                     <button class="admin-tab" onclick="switchTab('tab-system', this)">Система</button>
                 </div>
@@ -729,6 +753,49 @@
                             </div>
                         </div>
                         <button class="btn btn-primary mt-15" onclick="saveSettings()">СОХРАНИТЬ</button>
+                    </div>
+                </div>
+
+                <!-- ВКЛАДКА: ПЕРСОНАЛ -->
+                <div class="admin-section" id="tab-staff">
+                    <div class="panel mouse-glow mb-20">
+                        <h2>// Добавить сотрудника</h2>
+                        <div class="grid-2">
+                            <div>
+                                <label class="mono muted">Имя (Ник)</label>
+                                <input type="text" id="staffName" class="input-field" placeholder="Никнейм">
+                            </div>
+                            <div>
+                                <label class="mono muted">Должность</label>
+                                <input type="text" id="staffRole" class="input-field" placeholder="Например: Модератор">
+                            </div>
+                        </div>
+                        <div class="grid-3 mt-15">
+                            <div>
+                                <label class="mono muted">Отдел</label>
+                                <select id="staffSection" class="input-field">
+                                    <option value="high">Высшее руководство (карточки)</option>
+                                    <option value="admin">Администрация</option>
+                                    <option value="mod">Модерация</option>
+                                    <option value="trainee">Стажёры</option>
+                                    <option value="builder">Билдеры</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="mono muted">Тег (только для руководства)</label>
+                                <input type="text" id="staffTag" class="input-field" placeholder="FOUNDER">
+                            </div>
+                            <div>
+                                <label class="mono muted">Уровень (только для руководства)</label>
+                                <input type="text" id="staffLevel" class="input-field" placeholder="LEVEL-5">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary mt-15" onclick="addStaffMember()">ДОБАВИТЬ В СПИСОК</button>
+                    </div>
+
+                    <div class="panel mouse-glow">
+                        <h2>// Текущий состав</h2>
+                        <div id="adminStaffList"></div>
                     </div>
                 </div>
 
