@@ -470,6 +470,10 @@
         }
 
         window.addEventListener('load', router);
+        window.addEventListener('load', () => {
+            router();
+            updateServerStatus(); // Запускаем проверку статуса при загрузке
+        });
         window.addEventListener('hashchange', router);
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
@@ -684,6 +688,10 @@
                 <div class="admin-section" id="tab-settings">
                     <div class="panel mouse-glow">
                         <h2>// Монитор сервера</h2>
+                        <div class="adm-toggle mb-20">
+                            <span>Авто-определение статуса (mcstatus)</span>
+                            <div class="adm-switch ${DB.settings.autoStatus ? 'on' : ''}" id="swAutoStatus" onclick="toggleAutoStatus()"></div>
+                        </div>
                         <div class="grid-2 mb-20">
                             <div><label class="mono muted">IP Сервера</label><input type="text" id="setIp" class="input-field" value="${DB.settings.ip}"></div>
                             <div><label class="mono muted">Версия</label><input type="text" id="setVer" class="input-field" value="${DB.settings.version}"></div>
@@ -845,9 +853,60 @@
             DB.settings.hostingStatus = document.getElementById('setHostingStatus').value;
             DB.settings.maintenance = document.getElementById('swMaint').classList.contains('on');
             DB.settings.maintMsg = document.getElementById('setMaintMsg').value;
+            
+            // Сохраняем состояние тумблера авто-статуса
+            DB.settings.autoStatus = document.getElementById('swAutoStatus').classList.contains('on');
+            
             saveData();
             applySettings();
+            
+            // Если включен авто-режим — сразу обновляем данные с API
+            if (DB.settings.autoStatus) {
+                updateServerStatus();
+            }
+            
             alert('Настройки сохранены!');
+        }
+
+        function toggleAutoStatus() {
+            document.getElementById('swAutoStatus').classList.toggle('on');
+        }
+
+        // Функция запроса к API mcstatus
+        async function updateServerStatus() {
+            if (!DB.settings.autoStatus) return;
+            const ip = DB.settings.ip;
+            if (!ip || ip.length < 3) return;
+
+            try {
+                const res = await fetch(`https://api.mcsrvstat.us/3/${encodeURIComponent(ip)}`);
+                const data = await res.json();
+                
+                if (data.online) {
+                    DB.settings.serverStatus = 'ONLINE';
+                    DB.settings.onlineCount = data.players ? data.players.online : '0';
+                } else {
+                    DB.settings.serverStatus = 'OFFLINE';
+                    DB.settings.onlineCount = '0';
+                }
+                
+                // Сохраняем полученные данные в память
+                saveData();
+                
+                // Если мы сейчас на главной — обновляем цифры на экране
+                if (window.location.hash === '#/home' || window.location.hash === '') {
+                    const onlineEl = document.querySelector('.status-cell .big');
+                    if (onlineEl) onlineEl.textContent = DB.settings.onlineCount;
+                    
+                    const statusEl = document.querySelector('.status-cell .head strong');
+                    if (statusEl) {
+                        statusEl.textContent = data.online ? 'Сервер онлайн' : 'Сервер оффлайн';
+                        statusEl.parentElement.querySelector('.dot').style.background = data.online ? 'var(--green)' : 'var(--red)';
+                    }
+                }
+            } catch (e) {
+                console.error('Ошибка mcstatus:', e);
+            }
         }
 
         // Перехват горячих клавиш для редакторов
