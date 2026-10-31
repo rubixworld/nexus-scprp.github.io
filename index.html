@@ -225,8 +225,24 @@
 
         .input-field { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; color: #fff; padding: 12px 15px; margin-bottom: 12px; font-family: var(--font-main); outline: none; transition: 0.2s; }
         .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,153,249,0.15); }
-        textarea.input-field { resize: vertical; min-height: 120px; }
         
+        /* WYSIWYG Редактор */
+        .wysiwyg-wrap { margin-bottom: 20px; }
+        .wysiwyg-toolbar {
+            display: flex; gap: 5px; flex-wrap: wrap; background: rgba(255,255,255,0.05);
+            padding: 8px; border-radius: 8px 8px 0 0; border: 1px solid var(--border); border-bottom: none;
+        }
+        .wysiwyg-toolbar button, .wysiwyg-toolbar select, .wysiwyg-toolbar input {
+            background: rgba(0,0,0,0.4); border: 1px solid var(--border); color: #fff;
+            padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 14px;
+        }
+        .wysiwyg-toolbar button:hover { background: var(--accent); }
+        .wysiwyg-toolbar input[type="color"] { padding: 0; width: 30px; height: 30px; }
+        .wysiwyg-editor {
+            min-height: 200px; background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+            border-radius: 0 0 8px 8px; padding: 15px; color: #fff; outline: none; overflow-y: auto;
+        }
+
         .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .admin-tab { padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
         .admin-tab.active { background: var(--grad); color: #fff; border-color: transparent; }
@@ -412,7 +428,7 @@
             else if (s === 'MAINTENANCE') { color = 'var(--yellow)'; label = 'MAINTENANCE'; code = '<span class="c-key">server:</span> <span class="c-val">MAINTENANCE</span>'; }
 
             return `
-                <div class="server-monitor" style="border-top: 3px solid ${color};">
+                <div class="server-monitor mouse-glow" style="border-top: 3px solid ${color};">
                     <div class="monitor-head"><span class="mono">NEXUS_NETWORK</span><span class="mono" style="color:${color}">● LIVE</span></div>
                     <div class="monitor-body">
                         <div class="pulse-wrap"><div class="pulse-ring" style="border-color:${color}"></div><div class="pulse-dot" style="background:${color}; box-shadow:0 0 30px ${color}"></div></div>
@@ -591,7 +607,7 @@
         }
 
         function renderRoles(container) {
-            container.innerHTML = `<h1 class="mb-20">Роли проекта</h1><div class="panel"><h2>// Список ролей (Заглушка)</h2><p>Описание игровых ролей, классов и уровней допуска появится позже.</p></div>`;
+            container.innerHTML = `<h1 class="mb-20">Роли проекта</h1><div class="panel mouse-glow"><h2>// Список ролей (Заглушка)</h2><p>Описание игровых ролей, классов и уровней допуска появится позже.</p></div>`;
         }
 
         function renderDownload(container) {
@@ -627,7 +643,7 @@
             if (!isAdmin()) { window.location.hash = '#/home'; return; }
 
             container.innerHTML = `
-                <div class="panel mb-20" style="border-left: 3px solid var(--red);">
+                <div class="panel mb-20 mouse-glow" style="border-left: 3px solid var(--red);">
                     <h1 style="color: var(--red); margin:0;">ADMIN CONTROL PANEL</h1>
                     <p class="mono mt-15">> STATUS: ACCESS GRANTED</p>
                     <button class="btn btn-outline mt-15" onclick="logout()">ЗАВЕРШИТЬ СЕАНС</button>
@@ -643,14 +659,14 @@
                 <!-- ВКЛАДКА: НОВОСТИ -->
                 <div class="admin-section active" id="tab-news">
                     <div class="grid-2">
-                        <div class="panel">
+                        <div class="panel mouse-glow">
                             <h2>// Создать новость</h2>
                             <input type="text" id="newsTitle" class="input-field" placeholder="Заголовок">
                             <textarea id="newsContent" class="input-field" placeholder="Текст новости..."></textarea>
                             <input type="url" id="newsImage" class="input-field" placeholder="Ссылка на картинку (URL)">
                             <button class="btn btn-primary" onclick="createNews()">ОПУБЛИКОВАТЬ</button>
                         </div>
-                        <div class="panel">
+                        <div class="panel mouse-glow">
                             <h2>// Опубликовано</h2>
                             <div id="adminNewsList">
                                 ${DB.news.map(n => `
@@ -696,20 +712,74 @@
                     </div>
                 </div>
 
-                <!-- ВКЛАДКА: ПРАВИЛА -->
+                <!-- ВКЛАДКА: ПРАВИЛА (WYSIWYG) -->
                 <div class="admin-section" id="tab-rules">
                     <div class="panel mouse-glow">
                         <h2>// Редактор правил</h2>
-                        <p class="muted mb-20">Для красивого отображения используйте классы: <code>rules-intro</code>, <code>rules-section</code>, <code>rules-sub</code>, <code>rules-punish</code>.</p>
+                        <p class="muted mb-20">Выделяйте текст и используйте панель инструментов для форматирования.</p>
                         
-                        <label class="mono muted mb-20" style="display:block;">Правила Discord</label>
-                        <textarea id="rulesDiscord" class="input-field" style="min-height: 200px; font-family: var(--font-mono); font-size: 0.8rem;">${DB.rules.discord}</textarea>
-                        
-                        <label class="mono muted mb-20" style="display:block;">Правила Minecraft / RP</label>
-                        <textarea id="rulesRp" class="input-field" style="min-height: 200px; font-family: var(--font-mono); font-size: 0.8rem;">${DB.rules.rp}</textarea>
-                        
-                        <label class="mono muted mb-20" style="display:block;">Правила персонала</label>
-                        <textarea id="rulesStaff" class="input-field" style="min-height: 200px; font-family: var(--font-mono); font-size: 0.8rem;">${DB.rules.staff}</textarea>
+                        <div class="wysiwyg-wrap">
+                            <label class="mono muted mb-20" style="display:block;">Правила Discord</label>
+                            <div class="wysiwyg-toolbar">
+                                <button onclick="execCmd('bold')"><b>B</b></button>
+                                <button onclick="execCmd('italic')"><i>I</i></button>
+                                <button onclick="execCmd('underline')"><u>U</u></button>
+                                <button onclick="execCmd('insertUnorderedList')">• Список</button>
+                                <button onclick="execCmd('justifyLeft')">Лево</button>
+                                <button onclick="execCmd('justifyCenter')">Центр</button>
+                                <button onclick="execCmd('justifyRight')">Право</button>
+                                <select onchange="execCmd('fontSize', this.value)">
+                                    <option value="3">Обычный</option>
+                                    <option value="1">Маленький</option>
+                                    <option value="5">Большой</option>
+                                    <option value="7">Огромный</option>
+                                </select>
+                                <input type="color" onchange="execCmd('foreColor', this.value)" title="Цвет текста">
+                            </div>
+                            <div id="rulesDiscord" class="wysiwyg-editor" contenteditable="true">${DB.rules.discord}</div>
+                        </div>
+
+                        <div class="wysiwyg-wrap">
+                            <label class="mono muted mb-20" style="display:block;">Правила Minecraft / RP</label>
+                            <div class="wysiwyg-toolbar">
+                                <button onclick="execCmd('bold')"><b>B</b></button>
+                                <button onclick="execCmd('italic')"><i>I</i></button>
+                                <button onclick="execCmd('underline')"><u>U</u></button>
+                                <button onclick="execCmd('insertUnorderedList')">• Список</button>
+                                <button onclick="execCmd('justifyLeft')">Лево</button>
+                                <button onclick="execCmd('justifyCenter')">Центр</button>
+                                <button onclick="execCmd('justifyRight')">Право</button>
+                                <select onchange="execCmd('fontSize', this.value)">
+                                    <option value="3">Обычный</option>
+                                    <option value="1">Маленький</option>
+                                    <option value="5">Большой</option>
+                                    <option value="7">Огромный</option>
+                                </select>
+                                <input type="color" onchange="execCmd('foreColor', this.value)" title="Цвет текста">
+                            </div>
+                            <div id="rulesRp" class="wysiwyg-editor" contenteditable="true">${DB.rules.rp}</div>
+                        </div>
+
+                        <div class="wysiwyg-wrap">
+                            <label class="mono muted mb-20" style="display:block;">Правила персонала</label>
+                            <div class="wysiwyg-toolbar">
+                                <button onclick="execCmd('bold')"><b>B</b></button>
+                                <button onclick="execCmd('italic')"><i>I</i></button>
+                                <button onclick="execCmd('underline')"><u>U</u></button>
+                                <button onclick="execCmd('insertUnorderedList')">• Список</button>
+                                <button onclick="execCmd('justifyLeft')">Лево</button>
+                                <button onclick="execCmd('justifyCenter')">Центр</button>
+                                <button onclick="execCmd('justifyRight')">Право</button>
+                                <select onchange="execCmd('fontSize', this.value)">
+                                    <option value="3">Обычный</option>
+                                    <option value="1">Маленький</option>
+                                    <option value="5">Большой</option>
+                                    <option value="7">Огромный</option>
+                                </select>
+                                <input type="color" onchange="execCmd('foreColor', this.value)" title="Цвет текста">
+                            </div>
+                            <div id="rulesStaff" class="wysiwyg-editor" contenteditable="true">${DB.rules.staff}</div>
+                        </div>
                         
                         <button class="btn btn-primary mt-15" onclick="saveRules()">СОХРАНИТЬ ПРАВИЛА</button>
                     </div>
@@ -717,7 +787,7 @@
 
                 <!-- ВКЛАДКА: СИСТЕМА -->
                 <div class="admin-section" id="tab-system">
-                    <div class="panel">
+                    <div class="panel mouse-glow">
                         <h2>// Режим технических работ</h2>
                         <p class="muted">Закрывает сайт заглушкой для всех, кроме администраторов.</p>
                         <div class="adm-toggle">
@@ -736,6 +806,7 @@
             document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             btn.classList.add('active');
+            initMouseGlow(); // Переприменяем эффект для новых элементов
         }
 
         function toggleMaint() {
@@ -756,12 +827,16 @@
             alert('Настройки сохранены!');
         }
 
+        function execCmd(command, value = null) {
+            document.execCommand(command, false, value);
+        }
+
         function saveRules() {
-            DB.rules.discord = document.getElementById('rulesDiscord').value;
-            DB.rules.rp = document.getElementById('rulesRp').value;
-            DB.rules.staff = document.getElementById('rulesStaff').value;
+            DB.rules.discord = document.getElementById('rulesDiscord').innerHTML;
+            DB.rules.rp = document.getElementById('rulesRp').innerHTML;
+            DB.rules.staff = document.getElementById('rulesStaff').innerHTML;
             saveData();
-            alert('Правила сохранены! Изменения увидят все пользователи.');
+            alert('Правила сохранены! Изменения увидят все пользователи (при публикации на GitHub).');
         }
 
         function createNews() {
@@ -821,14 +896,21 @@
         function openModal(id) { const m = document.getElementById(id); if(m) m.classList.add('active'); }
         function closeModal(id) { const m = document.getElementById(id); if(m) m.classList.remove('active'); }
 
+        // Автоматическое применение фонарика ко ВСЕМ нужным элементам
         function initMouseGlow() {
-            const glowElements = document.querySelectorAll('.mouse-glow');
+            const selectors = '.panel, .pcard, .mgmt-card, .staff-row, .status-cell, .rules-content, .news-item, .server-monitor';
+            const glowElements = document.querySelectorAll(selectors);
             glowElements.forEach(el => {
-                el.addEventListener('mousemove', (e) => {
-                    const rect = el.getBoundingClientRect();
-                    el.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-                    el.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-                });
+                if (!el.classList.contains('mouse-glow')) el.classList.add('mouse-glow');
+                // Чтобы не вешать слушатель дважды
+                if (!el.dataset.glowInit) {
+                    el.dataset.glowInit = 'true';
+                    el.addEventListener('mousemove', (e) => {
+                        const rect = el.getBoundingClientRect();
+                        el.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                        el.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+                    });
+                }
             });
         }
     </script>
