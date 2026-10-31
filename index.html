@@ -370,8 +370,8 @@
                 <h3 class="mono" style="color: var(--accent); margin:0;">> ACCESS TERMINAL</h3>
                 <button class="close-btn" onclick="closeModal('loginModal')">✕</button>
             </div>
-            <input type="text" id="loginUser" class="input-field" placeholder="LOGIN" autocomplete="off">
-            <input type="password" id="loginPass" class="input-field" placeholder="PASSWORD" autocomplete="new-password">
+            <input type="text" id="loginUser" name="loginUser" class="input-field" placeholder="LOGIN" autocomplete="off">
+            <input type="password" id="loginPass" name="loginPass" class="input-field" placeholder="PASSWORD" autocomplete="new-password">
             <div id="loginError" class="mono mb-20" style="color: var(--red); min-height: 18px; font-size: 0.8rem;"></div>
             <button class="btn btn-primary w-100" onclick="doLogin()">ВОЙТИ В СИСТЕМУ</button>
         </div>
@@ -381,9 +381,19 @@
         // ==========================================
         // НАСТРОЙКИ SUPABASE
         // ==========================================
-        const SUPABASE_URL = 'https://nexus-scprp-site.supabase.co'; // Я убрал лишнюю "L"
+        const SUPABASE_URL = 'https://nexus-scprp-site.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4aG5ya2V4anB5dnZnaXZrdGprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0MzE4ODcsImV4cCI6MjEwOTAwNzg4N30.O_R-M2KqG4-fqYNP2qBcaICsqCFHgLVZKV5ghsDRMFg';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        let supabase = null;
+        try {
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            } else {
+                console.error("Библиотека Supabase не загрузилась! Проверьте интернет или блокировщик рекламы.");
+            }
+        } catch (e) {
+            console.error("Ошибка подключения к Supabase (проверьте URL и KEY):", e);
+        }
 
         // ==========================================
         // БАЗА ДАННЫХ
@@ -484,8 +494,19 @@
         }
 
         window.addEventListener('load', async () => {
-            await loadDataFromSupabase();
-            router();
+            // 1. СРАЗУ рисуем страницу, чтобы экран не был пустым
+            router(); 
+            
+            // 2. Затем стучимся в базу за данными
+            try {
+                if (supabase) {
+                    await loadDataFromSupabase();
+                    router(); // Перерисовываем с реальными данными
+                }
+            } catch (e) {
+                console.error("Ошибка загрузки данных:", e);
+            }
+            
             setInterval(updateServerStatus, 120000);
         });
         window.addEventListener('hashchange', router);
