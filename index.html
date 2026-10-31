@@ -736,13 +736,14 @@
                                 </select>
                                 <input type="color" onchange="execCmd('foreColor', this.value)" title="Цвет текста">
                                 
-                                <!-- НОВЫЕ КНОПКИ ДЛЯ ПЛАШЕК -->
                                 <button onclick="formatBlock('rules-intro')" style="color: var(--accent);">Вступление</button>
                                 <button onclick="formatBlock('rules-section-title')" style="color: #fff; font-weight:bold;">Глава</button>
                                 <button onclick="formatBlock('rules-sub-title')" style="color: #fff;">Подзаголовок</button>
                                 <button onclick="formatBlock('rules-punish')" style="color: var(--yellow);">Плашка</button>
                                 <button onclick="formatBlock('rules-bottom-warn')" style="color: var(--yellow);">Внимание</button>
                             </div>
+                            <div id="rulesDiscord" class="wysiwyg-editor" contenteditable="true">${DB.rules.discord}</div>
+                        </div>
 
                         <div class="wysiwyg-wrap">
                             <label class="mono muted mb-20" style="display:block;">Правила Minecraft / RP</label>
@@ -762,13 +763,14 @@
                                 </select>
                                 <input type="color" onchange="execCmd('foreColor', this.value)" title="Цвет текста">
                                 
-                                <!-- НОВЫЕ КНОПКИ ДЛЯ ПЛАШЕК -->
                                 <button onclick="formatBlock('rules-intro')" style="color: var(--accent);">Вступление</button>
                                 <button onclick="formatBlock('rules-section-title')" style="color: #fff; font-weight:bold;">Глава</button>
                                 <button onclick="formatBlock('rules-sub-title')" style="color: #fff;">Подзаголовок</button>
                                 <button onclick="formatBlock('rules-punish')" style="color: var(--yellow);">Плашка</button>
                                 <button onclick="formatBlock('rules-bottom-warn')" style="color: var(--yellow);">Внимание</button>
                             </div>
+                            <div id="rulesRp" class="wysiwyg-editor" contenteditable="true">${DB.rules.rp}</div>
+                        </div>
 
                         <div class="wysiwyg-wrap">
                             <label class="mono muted mb-20" style="display:block;">Правила персонала</label>
@@ -788,18 +790,18 @@
                                 </select>
                                 <input type="color" onchange="execCmd('foreColor', this.value)" title="Цвет текста">
                                 
-                                <!-- НОВЫЕ КНОПКИ ДЛЯ ПЛАШЕК -->
                                 <button onclick="formatBlock('rules-intro')" style="color: var(--accent);">Вступление</button>
                                 <button onclick="formatBlock('rules-section-title')" style="color: #fff; font-weight:bold;">Глава</button>
                                 <button onclick="formatBlock('rules-sub-title')" style="color: #fff;">Подзаголовок</button>
                                 <button onclick="formatBlock('rules-punish')" style="color: var(--yellow);">Плашка</button>
                                 <button onclick="formatBlock('rules-bottom-warn')" style="color: var(--yellow);">Внимание</button>
                             </div>
+                            <div id="rulesStaff" class="wysiwyg-editor" contenteditable="true">${DB.rules.staff}</div>
+                        </div>
                         
                         <button class="btn btn-primary mt-15" onclick="saveRules()">СОХРАНИТЬ ПРАВИЛА</button>
                     </div>
                 </div>
-
                 <!-- ВКЛАДКА: СИСТЕМА -->
                 <div class="admin-section" id="tab-system">
                     <div class="panel mouse-glow">
