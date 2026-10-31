@@ -158,7 +158,7 @@
         .mouse-glow { position: relative; overflow: hidden; }
         .mouse-glow::before {
             content: ''; position: absolute; inset: 0;
-            background: radial-gradient(120px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 86, 247, 0.15), transparent 100%);
+            background: radial-gradient(160px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 86, 247, 0.15), transparent 100%);
             opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 0;
         }
         .mouse-glow:hover::before { opacity: 1; }
@@ -1156,8 +1156,8 @@
         // ==========================================
         document.addEventListener('mousemove', (e) => {
             // Вычисляем смещение от центра экрана
-            const x = (e.clientX - window.innerWidth / 2) / 80; 
-            const y = (e.clientY - window.innerHeight / 2) / 80;
+            const x = (e.clientX - window.innerWidth / 2) / 50; 
+            const y = (e.clientY - window.innerHeight / 2) / 50;
             
             // Передаем значения в CSS
             document.documentElement.style.setProperty('--parallax-x', `${x}px`);
