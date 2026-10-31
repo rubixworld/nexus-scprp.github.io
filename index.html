@@ -51,29 +51,30 @@
         }
 
         .bg-image-layer {
-            position: fixed; inset: -5%; /* Чуть больше экрана, чтобы было куда двигаться */
-            z-index: -2;
+            position: fixed; inset: 0; z-index: -2;
             background-image: url('og-banner.png');
             background-size: cover; background-position: center;
             background-color: #05070A;
-            transition: transform 0.1s ease-out; /* Плавность движения */
         }
-        /* Затемнение */
+        /* Затемнение (остается на месте) */
         .bg-image-layer::before {
             content: ''; position: absolute; inset: 0;
             background: linear-gradient(135deg, rgba(5,7,10,0.85) 0%, rgba(5,7,10,0.6) 100%);
             backdrop-filter: blur(3px);
             z-index: 1;
         }
-        /* TUI Сетка */
+        /* TUI Сетка (будет двигаться) */
         .bg-image-layer::after {
-            content: ''; position: absolute; inset: 0;
+            content: ''; position: absolute; inset: -10%; /* Чуть больше экрана, чтобы не было видно краев при движении */
             background-image: 
                 linear-gradient(rgba(99, 86, 247, 0.12) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(99, 86, 247, 0.12) 1px, transparent 1px);
             background-size: 40px 40px;
             z-index: 2;
             pointer-events: none;
+            /* Вот здесь происходит магия движения */
+            transform: translate(var(--parallax-x, 0px), var(--parallax-y, 0px));
+            transition: transform 0.1s ease-out;
         }
 
         .mono { font-family: var(--font-mono); }
@@ -157,9 +158,8 @@
         .mouse-glow { position: relative; overflow: hidden; }
         .mouse-glow::before {
             content: ''; position: absolute; inset: 0;
-            background: radial-gradient(200px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 86, 247, 0.35), transparent 100%);
+            background: radial-gradient(120px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 86, 247, 0.15), transparent 100%);
             opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 0;
-            mix-blend-mode: screen; /* Делает свечение ярче на темном фоне */
         }
         .mouse-glow:hover::before { opacity: 1; }
         .mouse-glow > * { position: relative; z-index: 1; }
@@ -1152,17 +1152,16 @@
             });
         }
         // ==========================================
-        // ЭФФЕКТ ПАРАЛЛАКСА ДЛЯ ФОНА
+        // ЭФФЕКТ ПАРАЛЛАКСА ДЛЯ СЕТКИ
         // ==========================================
         document.addEventListener('mousemove', (e) => {
-            const bgLayer = document.querySelector('.bg-image-layer');
-            if (bgLayer) {
-                // Вычисляем смещение от центра экрана (делим на 40 для плавности)
-                const x = (e.clientX - window.innerWidth / 2) / -40; 
-                const y = (e.clientY - window.innerHeight / 2) / -40;
-                // Двигаем фон
-                bgLayer.style.transform = `translate(${x}px, ${y}px) scale(1.05)`;
-            }
+            // Вычисляем смещение от центра экрана
+            const x = (e.clientX - window.innerWidth / 2) / 80; 
+            const y = (e.clientY - window.innerHeight / 2) / 80;
+            
+            // Передаем значения в CSS
+            document.documentElement.style.setProperty('--parallax-x', `${x}px`);
+            document.documentElement.style.setProperty('--parallax-y', `${y}px`);
         });
     </script>
 </body>
