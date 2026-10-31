@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="icon" type="image/png" href="favicon.png">
     
     <style>
@@ -377,46 +378,59 @@
     </div>
 
     <script>
-        const CONFIG = {
-            ADMIN_LOGIN: 'nexus-scprp',
-            ADMIN_PASS: 'nexus-password-scprp'
-        };
+        // ==========================================
+        // НАСТРОЙКИ SUPABASE
+        // ==========================================
+        const SUPABASE_URL = 'https://nexus-scprp-site.supabase.co'; // Я убрал лишнюю "L"
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4aG5ya2V4anB5dnZnaXZrdGprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0MzE4ODcsImV4cCI6MjEwOTAwNzg4N30.O_R-M2KqG4-fqYNP2qBcaICsqCFHgLVZKV5ghsDRMFg';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        function safeParse(key, fallback) {
-            try { const item = localStorage.getItem(key); return item ? JSON.parse(item) : fallback; } 
-            catch (e) { return fallback; }
-        }
-
+        // ==========================================
+        // БАЗА ДАННЫХ
+        // ==========================================
         let DB = {
-            news: safeParse('nexus_news', [{
-                id: 1, date: new Date().toLocaleDateString('ru-RU'),
-                title: 'Запуск терминала Nexus', content: 'Добро пожаловать на официальный портал проекта Nexus • SCP-RP. Мы начинаем открытое тестирование.', image: ''
-            }]),
-            settings: safeParse('nexus_settings', {
+            news: [],
+            settings: {
                 ip: 'play.nexus-scp.ru', version: '1.20.1 FORGE',
                 maintenance: false, maintMsg: 'Сервер находится на обновлении. Пожалуйста, зайдите позже.',
                 serverStatus: 'ONLINE', hostingStatus: 'NORMAL',
-                onlineCount: '42', projectStatus: 'ЗБТ'
-            }),
-            rules: safeParse('nexus_rules', {
-                discord: `<div class="rules-intro">Незнание правил не освобождает от ответственности.<br>Администрация назначает наказание соразмерно тяжести нарушения.</div><div class="rules-section"><div class="rules-section-title">🌐 1. Общие положения</div><div class="rules-sub"><div class="rules-sub-title">1.1. Незнание правил</div><p>Незнание правил не освобождает от ответственности.</p></div><div class="rules-sub"><div class="rules-sub-title">1.2. Решения администрации</div><p>Администрация вправе принимать решения в нестандартных ситуациях.</p><div class="rules-punish">Мера наказания определяется индивидуально.</div></div></div><div class="rules-section"><div class="rules-section-title">💬 2. Общение</div><div class="rules-sub"><div class="rules-sub-title">2.1. Оскорбления</div><p><span class="rules-label">Запрещено:</span> любые формы оскорблений, унижения достоинства, травли.</p><div class="rules-punish">мут от 1 часа до 3 дней.</div></div></div><div class="rules-bottom-warn">Благодарим за понимание и уважение к другим участникам.</div>`,
-                rp: `<div class="rules-intro">Правила Minecraft-сервера Nexus • SCP-RP. Minecraft 1.20.1 Forge.</div><div class="rules-section"><div class="rules-section-title">1. Основы Roleplay</div><div class="rules-sub"><div class="rules-sub-title">1.1. FearRP</div><p>Ваш персонаж должен бояться за свою жизнь при угрозе оружием.</p></div><div class="rules-sub"><div class="rules-sub-title">1.2. FailRP</div><p>Запрещено совершать действия, невозможные в реальной жизни.</p><div class="rules-punish">бан на 1 день.</div></div></div>`,
-                staff: `<div class="rules-intro">Правила персонала проекта Nexus • SCP-RP.</div><div class="rules-section"><div class="rules-section-title">1. Общие обязанности</div><div class="rules-sub"><div class="rules-sub-title">1.1. Адекватность</div><p>Администратор обязан вести себя адекватно.</p></div></div>`
-            })
+                onlineCount: '0', projectStatus: 'ЗБТ', autoStatus: false
+            },
+            rules: { discord: '', rp: '', staff: '' },
+            user: null
         };
 
-        function saveData() {
-            localStorage.setItem('nexus_news', JSON.stringify(DB.news));
-            localStorage.setItem('nexus_settings', JSON.stringify(DB.settings));
-            localStorage.setItem('nexus_rules', JSON.stringify(DB.rules));
+        // ==========================================
+        // ЗАГРУЗКА ДАННЫХ
+        // ==========================================
+        async function loadDataFromSupabase() {
+            try {
+                const { data: settingsData } = await supabase.from('site_settings').select('*');
+                if (settingsData) settingsData.forEach(row => { DB.settings[row.key] = row.value; });
+
+                const { data: rulesData } = await supabase.from('site_rules').select('*');
+                if (rulesData) rulesData.forEach(row => { DB.rules[row.key] = row.content; });
+
+                const { data: newsData } = await supabase.from('news').select('*').order('id', { ascending: false });
+                if (newsData) DB.news = newsData;
+
+                const { data: { session } } = await supabase.auth.getSession();
+                DB.user = session ? session.user : null;
+                if (DB.user) document.getElementById('adminNavLink').style.display = 'flex';
+
+                if (DB.settings.autoStatus) updateServerStatus();
+            } catch (e) { console.error("Ошибка загрузки:", e); }
         }
 
         function applySettings() {
             const mntMsg = document.getElementById('mntMessage');
             if (mntMsg) mntMsg.textContent = DB.settings.maintMsg;
             const mnt = document.getElementById('maintenance');
-            const isAdmin = sessionStorage.getItem('nexus_admin') === 'true';
-            if (mnt) { DB.settings.maintenance && !isAdmin ? mnt.classList.add('show') : mnt.classList.remove('show'); }
+            
+            // Теперь проверяем авторизацию через DB.user, а не sessionStorage
+            if (mnt) { 
+                DB.settings.maintenance && !DB.user ? mnt.classList.add('show') : mnt.classList.remove('show'); 
+            }
         }
 
         function renderMonitor() {
@@ -469,14 +483,17 @@
             initMouseGlow(); 
         }
 
-        window.addEventListener('load', router);
-        window.addEventListener('load', () => {
+        window.addEventListener('load', async () => {
+            await loadDataFromSupabase();
             router();
-            updateServerStatus(); // Запускаем проверку статуса при загрузке
+            setInterval(updateServerStatus, 120000);
         });
         window.addEventListener('hashchange', router);
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
+        // ==========================================
+        // СТРАНИЦЫ
+        // ==========================================
         function renderHome(container) {
             const newsHTML = DB.news.map(n => `
                 <div class="panel mouse-glow mb-20">
@@ -503,7 +520,7 @@
 
                 <div class="status-row mb-20">
                     <div class="status-cell mouse-glow">
-                        <div class="head"><div class="dot"></div><strong>Сервер онлайн</strong></div>
+                        <div class="head"><div class="dot" style="background: ${DB.settings.serverStatus === 'OFFLINE' ? 'var(--red)' : 'var(--green)'}"></div><strong>Сервер ${DB.settings.serverStatus === 'OFFLINE' ? 'оффлайн' : 'онлайн'}</strong></div>
                         <div class="sub">Актуальный статус проекта</div>
                     </div>
                     <div class="status-cell mouse-glow">
@@ -536,30 +553,15 @@
         }
 
         function renderRulesDiscord(container) {
-            container.innerHTML = `
-                <h1 class="mb-20">Правила Discord</h1>
-                <div class="rules-content mouse-glow">
-                    ${DB.rules.discord || '<p>Правила пока не заполнены.</p>'}
-                </div>
-            `;
+            container.innerHTML = `<h1 class="mb-20">Правила Discord</h1><div class="rules-content mouse-glow">${DB.rules.discord || '<p>Правила пока не заполнены.</p>'}</div>`;
         }
 
         function renderRulesRP(container) {
-            container.innerHTML = `
-                <h1 class="mb-20">Правила отыгровки (RP)</h1>
-                <div class="rules-content mouse-glow">
-                    ${DB.rules.rp || '<p>Правила пока не заполнены.</p>'}
-                </div>
-            `;
+            container.innerHTML = `<h1 class="mb-20">Правила отыгровки (RP)</h1><div class="rules-content mouse-glow">${DB.rules.rp || '<p>Правила пока не заполнены.</p>'}</div>`;
         }
 
         function renderRulesAdmin(container) {
-            container.innerHTML = `
-                <h1 class="mb-20">Правила администрации</h1>
-                <div class="rules-content mouse-glow">
-                    ${DB.rules.staff || '<p>Правила пока не заполнены.</p>'}
-                </div>
-            `;
+            container.innerHTML = `<h1 class="mb-20">Правила администрации</h1><div class="rules-content mouse-glow">${DB.rules.staff || '<p>Правила пока не заполнены.</p>'}</div>`;
         }
 
         function renderManagement(container) {
@@ -570,10 +572,8 @@
             ];
             const cards = STAFF_LIST.map(s => `
                 <div class="mgmt-card mouse-glow">
-                    <div class="mgmt-level">${s.level}</div>
-                    <div class="mgmt-tag">// ${s.tag}</div>
-                    <div class="mgmt-role">${s.role}</div>
-                    <div class="mgmt-name">${s.name}</div>
+                    <div class="mgmt-level">${s.level}</div><div class="mgmt-tag">// ${s.tag}</div>
+                    <div class="mgmt-role">${s.role}</div><div class="mgmt-name">${s.name}</div>
                 </div>
             `).join('');
             container.innerHTML = `<h1 class="mb-20">Руководство проекта</h1><div class="mgmt-grid">${cards}</div>`;
@@ -591,21 +591,15 @@
                 <h1 class="mb-20">Персонал проекта</h1>
                 <div class="staff-section">
                     <div class="staff-section-header high">Высшее руководство</div>
-                    ${STAFF.filter(s => s.section === 'high').map(s => `
-                        <div class="staff-row mouse-glow"><div class="staff-num">01</div><div class="staff-role-name">${s.role}</div><div class="staff-person">${s.name}</div></div>
-                    `).join('')}
+                    ${STAFF.filter(s => s.section === 'high').map(s => `<div class="staff-row mouse-glow"><div class="staff-num">01</div><div class="staff-role-name">${s.role}</div><div class="staff-person">${s.name}</div></div>`).join('')}
                 </div>
                 <div class="staff-section">
                     <div class="staff-section-header">Администрация</div>
-                    ${STAFF.filter(s => s.section === 'admin').map(s => `
-                        <div class="staff-row mouse-glow"><div class="staff-num">02</div><div class="staff-role-name">${s.role}</div><div class="staff-person">${s.name}</div></div>
-                    `).join('')}
+                    ${STAFF.filter(s => s.section === 'admin').map(s => `<div class="staff-row mouse-glow"><div class="staff-num">02</div><div class="staff-role-name">${s.role}</div><div class="staff-person">${s.name}</div></div>`).join('')}
                 </div>
                 <div class="staff-section">
                     <div class="staff-section-header">Модерация</div>
-                    ${STAFF.filter(s => s.section === 'mod').map(s => `
-                        <div class="staff-row mouse-glow"><div class="staff-num">03</div><div class="staff-role-name">${s.role}</div><div class="staff-person">${s.name}</div></div>
-                    `).join('')}
+                    ${STAFF.filter(s => s.section === 'mod').map(s => `<div class="staff-row mouse-glow"><div class="staff-num">03</div><div class="staff-role-name">${s.role}</div><div class="staff-person">${s.name}</div></div>`).join('')}
                 </div>
             `;
         }
@@ -618,7 +612,6 @@
             container.innerHTML = `
                 <h1 class="mb-20">Скачать лаунчер</h1>
                 <p class="muted mb-20" style="max-width: 600px;">Официальный лаунчер Nexus • SCP-RP для входа на сервер. Скачай, установи — и играй.</p>
-
                 <div class="panel mouse-glow mb-20" style="text-align: center; padding: 50px 20px; background: linear-gradient(180deg, rgba(88,153,249,0.08) 0%, transparent 100%);">
                     <h2 style="border: none; margin-bottom: 30px; color: #fff;">Готовы начать?</h2>
                     <a href="https://github.com/rubixworld/nexus-scprp.github.io/releases/download/Launcher/NexusLauncher-Setup.exe" class="btn btn-primary" style="padding: 20px 50px; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 12px;">
@@ -627,48 +620,19 @@
                     </a>
                     <div class="mono muted mt-15" style="font-size: 12px; letter-spacing: 1px;">Windows · .exe</div>
                 </div>
-
-                <h2>// Как установить</h2>
-                <div class="grid-4 mb-20">
-                    <div class="panel mouse-glow">
-                        <div class="mono" style="color: var(--accent); margin-bottom: 5px;">ШАГ 01</div>
-                        <h4 style="color: #fff; margin-bottom: 10px;">Скачай .exe</h4>
-                        <p class="muted" style="font-size: 13px; margin-bottom: 0;">Нажми на кнопку выше и сохрани файл на свой компьютер.</p>
-                    </div>
-                    <div class="panel mouse-glow">
-                        <div class="mono" style="color: var(--accent); margin-bottom: 5px;">ШАГ 02</div>
-                        <h4 style="color: #fff; margin-bottom: 10px;">Запусти установщик</h4>
-                        <p class="muted" style="font-size: 13px; margin-bottom: 0;">Открой файл и следуй инструкциям на экране.</p>
-                    </div>
-                    <div class="panel mouse-glow">
-                        <div class="mono" style="color: var(--accent); margin-bottom: 5px;">ШАГ 03</div>
-                        <h4 style="color: #fff; margin-bottom: 10px;">Авторизуйся</h4>
-                        <p class="muted" style="font-size: 13px; margin-bottom: 0;">Введи свой игровой ник или данные аккаунта.</p>
-                    </div>
-                    <div class="panel mouse-glow">
-                        <div class="mono" style="color: var(--accent); margin-bottom: 5px;">ШАГ 04</div>
-                        <h4 style="color: #fff; margin-bottom: 10px;">Заходи и играй</h4>
-                        <p class="muted" style="font-size: 13px; margin-bottom: 0;">Дождись загрузки файлов и подключайся к серверу!</p>
-                    </div>
-                </div>
-
                 <div class="rules-punish mb-20" style="border-left-color: var(--yellow); background: rgba(241, 196, 15, 0.05); font-size: 13px;">
                     <b>⚠️ Важно:</b> если антивирус или Windows SmartScreen ругается на лаунчер — это <b>ложное срабатывание</b>. Нажми «Подробнее» → «Выполнить в любом случае». Лаунчер безопасен.
                 </div>
-
-                <h2>// Частые проблемы</h2>
-                <div class="panel mouse-glow">
-                    <div class="rules-sub">
-                        <div class="rules-sub-title">Антивирус блокирует запуск</div>
-                        <p>Добавь папку с лаунчером в исключения антивируса. Также попробуй нажать правой кнопкой по .exe → «Свойства» → поставь галочку «Разблокировать» → ОК.</p>
-                    </div>
-                    <div class="rules-sub" style="margin-bottom: 0;">
-                        <div class="rules-sub-title">Не подключается к серверу</div>
-                        <p style="margin-bottom: 0;">Проверь IP-адрес на странице <b>«Главная»</b>. Если сервер на тех. работах — просто зайди позже.</p>
-                    </div>
+                <h2>// Как установить</h2>
+                <div class="grid-4 mb-20">
+                    <div class="panel mouse-glow"><div class="mono" style="color: var(--accent); margin-bottom: 5px;">ШАГ 01</div><h4 style="color: #fff; margin-bottom: 10px;">Скачай .exe</h4><p class="muted" style="font-size: 13px; margin-bottom: 0;">Нажми на кнопку выше и сохрани файл на свой компьютер.</p></div>
+                    <div class="panel mouse-glow"><div class="mono" style="color: var(--accent); margin-bottom: 5px;">ШАГ 02</div><h4 style="color: #fff; margin-bottom: 10px;">Запусти установщик</h4><p class="muted" style="font-size: 13px; margin-bottom: 0;">Открой файл и следуй инструкциям на экране.</p></div>
+                    <div class="panel mouse-glow"><div class="mono" style="color: var(--accent); margin-bottom: 5px;">ШАГ 03</div><h4 style="color: #fff; margin-bottom: 10px;">Авторизуйся</h4><p class="muted" style="font-size: 13px; margin-bottom: 0;">Введи свой игровой ник или данные аккаунта.</p></div>
+                    <div class="panel mouse-glow"><div class="mono" style="color: var(--accent); margin-bottom: 5px;">ШАГ 04</div><h4 style="color: #fff; margin-bottom: 10px;">Заходи и играй</h4><p class="muted" style="font-size: 13px; margin-bottom: 0;">Дождись загрузки файлов и подключайся к серверу!</p></div>
                 </div>
             `;
         }
+
         function renderAbout(container) {
             container.innerHTML = `
                 <h1 class="mb-20">О нас / Связь</h1>
@@ -680,7 +644,11 @@
             `;
         }
 
-        function isAdmin() { return sessionStorage.getItem('nexus_admin') === 'true'; }
+        // ==========================================
+        // АДМИНКА
+        // ==========================================
+        // Теперь проверяем наличие юзера в Supabase, а не sessionStorage
+        function isAdmin() { return DB.user !== null; }
 
         function renderAdmin(container) {
             if (!isAdmin()) { window.location.hash = '#/home'; return; }
@@ -688,7 +656,7 @@
             container.innerHTML = `
                 <div class="panel mb-20 mouse-glow" style="border-left: 3px solid var(--red);">
                     <h1 style="color: var(--red); margin:0;">ADMIN CONTROL PANEL</h1>
-                    <p class="mono mt-15">> STATUS: ACCESS GRANTED</p>
+                    <p class="mono mt-15">> USER: ${DB.user.email}</p>
                     <button class="btn btn-outline mt-15" onclick="logout()">ЗАВЕРШИТЬ СЕАНС</button>
                 </div>
 
@@ -699,7 +667,6 @@
                     <button class="admin-tab" onclick="switchTab('tab-system', this)">Система</button>
                 </div>
 
-                <!-- ВКЛАДКА: НОВОСТИ -->
                 <div class="admin-section active" id="tab-news">
                     <div class="grid-2">
                         <div class="panel mouse-glow">
@@ -723,7 +690,6 @@
                     </div>
                 </div>
 
-                <!-- ВКЛАДКА: НАСТРОЙКИ -->
                 <div class="admin-section" id="tab-settings">
                     <div class="panel mouse-glow">
                         <h2>// Монитор сервера</h2>
@@ -759,110 +725,58 @@
                     </div>
                 </div>
 
-                <!-- ВКЛАДКА: ПРАВИЛА (WYSIWYG) -->
                 <div class="admin-section" id="tab-rules">
                     <div class="panel mouse-glow">
                         <h2>// Редактор правил</h2>
-                        <p class="muted mb-20">Выделяйте текст и используйте панель инструментов для форматирования.</p>
-                        
                         <div class="wysiwyg-wrap">
                             <label class="mono muted mb-20" style="display:block;">Правила Discord</label>
                             <div class="wysiwyg-toolbar">
-                                <button onclick="execCmd('undo')" title="Отменить (Ctrl+Z)">↶ Отмена</button>
-                                <button onclick="execCmd('redo')" title="Повторить (Ctrl+Y)">↷ Повтор</button>
+                                <button onclick="execCmd('undo')" title="Отменить">↶</button>
+                                <button onclick="execCmd('redo')" title="Повторить">↷</button>
                                 <button onclick="execCmd('bold')"><b>B</b></button>
                                 <button onclick="execCmd('italic')"><i>I</i></button>
-                                <button onclick="execCmd('underline')"><u>U</u></button>
-                                <button onclick="execCmd('insertUnorderedList')">• Список</button>
-                                <button onclick="execCmd('justifyLeft')">Лево</button>
-                                <button onclick="execCmd('justifyCenter')">Центр</button>
-                                <button onclick="execCmd('justifyRight')">Право</button>
-                                <select onchange="execCmd('fontSize', this.value)">
-                                    <option value="3">Обычный</option>
-                                    <option value="1">Маленький</option>
-                                    <option value="5">Большой</option>
-                                    <option value="7">Огромный</option>
-                                </select>
-                                <input type="color" onchange="execCmd('foreColor', this.value)" title="Цвет текста">
-                                
                                 <button onclick="formatBlock('rules-intro')" style="color: var(--accent);">Вступление</button>
-                                <button onclick="formatBlock('rules-section-title')" style="color: #fff; font-weight:bold;">Глава</button>
-                                <button onclick="formatBlock('rules-sub-title')" style="color: #fff;">Подзаголовок</button>
+                                <button onclick="formatBlock('rules-section-title')">Глава</button>
                                 <button onclick="formatBlock('rules-punish')" style="color: var(--yellow);">Плашка</button>
-                                <button onclick="formatBlock('rules-bottom-warn')" style="color: var(--yellow);">Внимание</button>
                             </div>
                             <div id="rulesDiscord" class="wysiwyg-editor" contenteditable="true">${DB.rules.discord}</div>
                         </div>
-
                         <div class="wysiwyg-wrap">
                             <label class="mono muted mb-20" style="display:block;">Правила Minecraft / RP</label>
                             <div class="wysiwyg-toolbar">
-                                <button onclick="execCmd('undo')" title="Отменить (Ctrl+Z)">↶ Отмена</button>
-                                <button onclick="execCmd('redo')" title="Повторить (Ctrl+Y)">↷ Повтор</button>
+                                <button onclick="execCmd('undo')" title="Отменить">↶</button>
+                                <button onclick="execCmd('redo')" title="Повторить">↷</button>
                                 <button onclick="execCmd('bold')"><b>B</b></button>
                                 <button onclick="execCmd('italic')"><i>I</i></button>
-                                <button onclick="execCmd('underline')"><u>U</u></button>
-                                <button onclick="execCmd('insertUnorderedList')">• Список</button>
-                                <button onclick="execCmd('justifyLeft')">Лево</button>
-                                <button onclick="execCmd('justifyCenter')">Центр</button>
-                                <button onclick="execCmd('justifyRight')">Право</button>
-                                <select onchange="execCmd('fontSize', this.value)">
-                                    <option value="3">Обычный</option>
-                                    <option value="1">Маленький</option>
-                                    <option value="5">Большой</option>
-                                    <option value="7">Огромный</option>
-                                </select>
-                                <input type="color" onchange="execCmd('foreColor', this.value)" title="Цвет текста">
-                                
                                 <button onclick="formatBlock('rules-intro')" style="color: var(--accent);">Вступление</button>
-                                <button onclick="formatBlock('rules-section-title')" style="color: #fff; font-weight:bold;">Глава</button>
-                                <button onclick="formatBlock('rules-sub-title')" style="color: #fff;">Подзаголовок</button>
+                                <button onclick="formatBlock('rules-section-title')">Глава</button>
                                 <button onclick="formatBlock('rules-punish')" style="color: var(--yellow);">Плашка</button>
-                                <button onclick="formatBlock('rules-bottom-warn')" style="color: var(--yellow);">Внимание</button>
                             </div>
                             <div id="rulesRp" class="wysiwyg-editor" contenteditable="true">${DB.rules.rp}</div>
                         </div>
-
                         <div class="wysiwyg-wrap">
                             <label class="mono muted mb-20" style="display:block;">Правила персонала</label>
                             <div class="wysiwyg-toolbar">
-                                <button onclick="execCmd('undo')" title="Отменить (Ctrl+Z)">↶ Отмена</button>
-                                <button onclick="execCmd('redo')" title="Повторить (Ctrl+Y)">↷ Повтор</button>
+                                <button onclick="execCmd('undo')" title="Отменить">↶</button>
+                                <button onclick="execCmd('redo')" title="Повторить">↷</button>
                                 <button onclick="execCmd('bold')"><b>B</b></button>
                                 <button onclick="execCmd('italic')"><i>I</i></button>
-                                <button onclick="execCmd('underline')"><u>U</u></button>
-                                <button onclick="execCmd('insertUnorderedList')">• Список</button>
-                                <button onclick="execCmd('justifyLeft')">Лево</button>
-                                <button onclick="execCmd('justifyCenter')">Центр</button>
-                                <button onclick="execCmd('justifyRight')">Право</button>
-                                <select onchange="execCmd('fontSize', this.value)">
-                                    <option value="3">Обычный</option>
-                                    <option value="1">Маленький</option>
-                                    <option value="5">Большой</option>
-                                    <option value="7">Огромный</option>
-                                </select>
-                                <input type="color" onchange="execCmd('foreColor', this.value)" title="Цвет текста">
-                                
                                 <button onclick="formatBlock('rules-intro')" style="color: var(--accent);">Вступление</button>
-                                <button onclick="formatBlock('rules-section-title')" style="color: #fff; font-weight:bold;">Глава</button>
-                                <button onclick="formatBlock('rules-sub-title')" style="color: #fff;">Подзаголовок</button>
+                                <button onclick="formatBlock('rules-section-title')">Глава</button>
                                 <button onclick="formatBlock('rules-punish')" style="color: var(--yellow);">Плашка</button>
-                                <button onclick="formatBlock('rules-bottom-warn')" style="color: var(--yellow);">Внимание</button>
                             </div>
                             <div id="rulesStaff" class="wysiwyg-editor" contenteditable="true">${DB.rules.staff}</div>
                         </div>
-                        
                         <button class="btn btn-primary mt-15" onclick="saveRules()">СОХРАНИТЬ ПРАВИЛА</button>
                     </div>
                 </div>
-                <!-- ВКЛАДКА: СИСТЕМА -->
+
                 <div class="admin-section" id="tab-system">
                     <div class="panel mouse-glow">
                         <h2>// Режим технических работ</h2>
-                        <p class="muted">Закрывает сайт заглушкой для всех, кроме администраторов.</p>
                         <div class="adm-toggle">
                             <span>Включить тех. работы</span>
-                            <div class="adm-switch ${DB.settings.maintenance?'on':''}" id="swMaint" onclick="toggleMaint()"></div>
+                            <div class="adm-switch ${DB.settings.maintenance?'on':''}" id="swMaint" onclick="document.getElementById('swMaint').classList.toggle('on')"></div>
                         </div>
                         <input type="text" id="setMaintMsg" class="input-field mt-15" value="${DB.settings.maintMsg}" placeholder="Сообщение на экране">
                         <button class="btn btn-primary mt-15" onclick="saveSettings()">ПРИМЕНИТЬ</button>
@@ -876,14 +790,12 @@
             document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             btn.classList.add('active');
-            initMouseGlow(); // Переприменяем эффект для новых элементов
+            initMouseGlow();
         }
 
-        function toggleMaint() {
-            document.getElementById('swMaint').classList.toggle('on');
-        }
+        function toggleAutoStatus() { document.getElementById('swAutoStatus').classList.toggle('on'); }
 
-        function saveSettings() {
+        async function saveSettings() {
             DB.settings.ip = document.getElementById('setIp').value;
             DB.settings.version = document.getElementById('setVer').value;
             DB.settings.onlineCount = document.getElementById('setOnlineCount').value;
@@ -892,180 +804,132 @@
             DB.settings.hostingStatus = document.getElementById('setHostingStatus').value;
             DB.settings.maintenance = document.getElementById('swMaint').classList.contains('on');
             DB.settings.maintMsg = document.getElementById('setMaintMsg').value;
-            
-            // Сохраняем состояние тумблера авто-статуса
             DB.settings.autoStatus = document.getElementById('swAutoStatus').classList.contains('on');
-            
-            saveData();
+
+            for (let key in DB.settings) { await saveSettingToSupabase(key, DB.settings[key]); }
             applySettings();
-            
-            // Если включен авто-режим — сразу обновляем данные с API
-            if (DB.settings.autoStatus) {
-                updateServerStatus();
+            if (DB.settings.autoStatus) updateServerStatus();
+            alert('Настройки сохранены в облако!');
+        }
+
+        async function saveSettingToSupabase(key, value) {
+            const { error } = await supabase.from('site_settings').upsert({ key: key, value: value });
+            if (error) console.error(error);
+        }
+
+        async function saveRules() {
+            const rules = { discord: document.getElementById('rulesDiscord').innerHTML, rp: document.getElementById('rulesRp').innerHTML, staff: document.getElementById('rulesStaff').innerHTML };
+            for (let key in rules) { 
+                const { error } = await supabase.from('site_rules').upsert({ key: key, content: rules[key] }); 
+                if(error) console.error(error);
+                DB.rules[key] = rules[key]; 
             }
-            
-            alert('Настройки сохранены!');
+            alert('Правила сохранены в облако!');
         }
 
-        function toggleAutoStatus() {
-            document.getElementById('swAutoStatus').classList.toggle('on');
-        }
-
-        // Функция запроса к API mcstatus
-        async function updateServerStatus() {
-            if (!DB.settings.autoStatus) return;
-            const ip = DB.settings.ip;
-            if (!ip || ip.length < 3) return;
-
-            try {
-                const res = await fetch(`https://api.mcsrvstat.us/3/${encodeURIComponent(ip)}`);
-                const data = await res.json();
-                
-                if (data.online) {
-                    DB.settings.serverStatus = 'ONLINE';
-                    DB.settings.onlineCount = data.players ? data.players.online : '0';
-                } else {
-                    DB.settings.serverStatus = 'OFFLINE';
-                    DB.settings.onlineCount = '0';
-                }
-                
-                // Сохраняем полученные данные в память
-                saveData();
-                
-                // Если мы сейчас на главной — обновляем цифры на экране
-                if (window.location.hash === '#/home' || window.location.hash === '') {
-                    const onlineEl = document.querySelector('.status-cell .big');
-                    if (onlineEl) onlineEl.textContent = DB.settings.onlineCount;
-                    
-                    const statusEl = document.querySelector('.status-cell .head strong');
-                    if (statusEl) {
-                        statusEl.textContent = data.online ? 'Сервер онлайн' : 'Сервер оффлайн';
-                        statusEl.parentElement.querySelector('.dot').style.background = data.online ? 'var(--green)' : 'var(--red)';
-                    }
-                }
-            } catch (e) {
-                console.error('Ошибка mcstatus:', e);
-            }
-        }
-
-        // Перехват горячих клавиш для редакторов
-        document.addEventListener('keydown', function(e) {
-            const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-            const isMod = isMac ? e.metaKey : e.ctrlKey;
-            
-            // Если фокус находится внутри редактора
-            if (e.target.classList.contains('wysiwyg-editor')) {
-                if (isMod && e.key.toLowerCase() === 'z') {
-                    e.preventDefault();
-                    if (e.shiftKey) {
-                        document.execCommand('redo', false, null);
-                    } else {
-                        document.execCommand('undo', false, null);
-                    }
-                } else if (isMod && e.key.toLowerCase() === 'y') {
-                    e.preventDefault();
-                    document.execCommand('redo', false, null);
-                }
-            }
-        });
-        
-        function execCmd(command, value = null) {
-            document.execCommand(command, false, value);
-        }
-
-        function formatBlock(className) {
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
-            const range = selection.getRangeAt(0);
-            
-            // Если ничего не выделено — просим выделить
-            if (range.collapsed) {
-                alert('Выделите текст, чтобы применить стиль!');
-                return;
-            }
-            
-            // Создаем блок с нужным классом и переносим туда текст
-            const div = document.createElement('div');
-            div.className = className;
-            div.appendChild(range.extractContents());
-            range.insertNode(div);
-            
-            // Снимаем выделение
-            selection.removeAllRanges();
-        }
-
-        function saveRules() {
-            DB.rules.discord = document.getElementById('rulesDiscord').innerHTML;
-            DB.rules.rp = document.getElementById('rulesRp').innerHTML;
-            DB.rules.staff = document.getElementById('rulesStaff').innerHTML;
-            saveData();
-            alert('Правила сохранены! Изменения увидят все пользователи (при публикации на GitHub).');
-        }
-
-        function createNews() {
+        async function createNews() {
             const title = document.getElementById('newsTitle').value;
             const content = document.getElementById('newsContent').value;
             const image = document.getElementById('newsImage').value;
             if (!title || !content) return alert('Заполните поля!');
-            DB.news.unshift({ id: Date.now(), date: new Date().toLocaleDateString('ru-RU'), title, content, image });
-            saveData();
+            const date = new Date().toLocaleDateString('ru-RU');
+            const { data, error } = await supabase.from('news').insert([{ title, content, image, date }]).select();
+            if (error) return alert('Ошибка: ' + error.message);
+            DB.news.unshift(data[0]);
             router();
             switchTab('tab-news', document.querySelector('.admin-tab'));
         }
 
-        function deleteNews(id) {
+        async function deleteNews(id) {
             if (!confirm('Удалить?')) return;
+            const { error } = await supabase.from('news').delete().eq('id', id);
+            if (error) return alert('Ошибка: ' + error.message);
             DB.news = DB.news.filter(n => n.id !== id);
-            saveData();
             router();
             switchTab('tab-news', document.querySelector('.admin-tab'));
         }
 
-        function doLogin() {
-            const user = document.getElementById('loginUser').value.trim();
+        async function doLogin() {
+            const email = document.getElementById('loginUser').value.trim();
             const pass = document.getElementById('loginPass').value.trim();
             const err = document.getElementById('loginError');
-            if (user === CONFIG.ADMIN_LOGIN && pass === CONFIG.ADMIN_PASS) {
-                sessionStorage.setItem('nexus_admin', 'true');
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+            if (error) { if(err) err.textContent = '> ОШИБКА: ' + error.message; }
+            else {
+                DB.user = data.user;
                 document.getElementById('adminNavLink').style.display = 'flex';
                 closeModal('loginModal');
                 window.location.hash = '#/admin';
-            } else {
-                if(err) err.textContent = '> ОШИБКА ВХОДА';
             }
         }
 
-        function logout() {
-            sessionStorage.removeItem('nexus_admin');
+        async function logout() {
+            await supabase.auth.signOut();
+            DB.user = null;
             document.getElementById('adminNavLink').style.display = 'none';
             window.location.hash = '#/home';
             router();
         }
 
-        const brandEl = document.getElementById('brandBtn');
-        if (brandEl) {
-            brandEl.addEventListener('click', function(e) {
-                if (e.ctrlKey && e.shiftKey) {
-                    e.preventDefault();
-                    if (isAdmin()) window.location.hash = '#/admin';
-                    else openModal('loginModal');
-                } else {
-                    window.location.hash = '#/home';
-                }
-            });
-        }
+        document.getElementById('brandBtn').addEventListener('click', function(e) {
+            if (e.ctrlKey && e.shiftKey) {
+                e.preventDefault();
+                if (DB.user) window.location.hash = '#/admin';
+                else openModal('loginModal');
+            } else { window.location.hash = '#/home'; }
+        });
 
-        if (isAdmin()) document.getElementById('adminNavLink').style.display = 'flex';
         function openModal(id) { const m = document.getElementById(id); if(m) m.classList.add('active'); }
         function closeModal(id) { const m = document.getElementById(id); if(m) m.classList.remove('active'); }
+        
+        function execCmd(command, value = null) { document.execCommand(command, false, value); }
 
-        // Автоматическое применение фонарика ко ВСЕМ нужным элементам
+        function formatBlock(className) {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+            const range = selection.getRangeAt(0);
+            if (range.collapsed) return alert('Выделите текст!');
+            const div = document.createElement('div');
+            div.className = className;
+            div.appendChild(range.extractContents());
+            range.insertNode(div);
+            selection.removeAllRanges();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.target.classList.contains('wysiwyg-editor')) {
+                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+                    e.preventDefault();
+                    document.execCommand(e.shiftKey ? 'redo' : 'undo', false, null);
+                }
+            }
+        });
+
+        async function updateServerStatus() {
+            if (!DB.settings.autoStatus) return;
+            const ip = DB.settings.ip;
+            if (!ip || ip.length < 3) return;
+            try {
+                const res = await fetch(`https://api.mcsrvstat.us/3/${encodeURIComponent(ip)}`);
+                const data = await res.json();
+                const newStatus = data.online ? 'ONLINE' : 'OFFLINE';
+                const newCount = data.online && data.players ? String(data.players.online) : '0';
+                
+                if (DB.settings.serverStatus !== newStatus || DB.settings.onlineCount !== newCount) {
+                    DB.settings.serverStatus = newStatus;
+                    DB.settings.onlineCount = newCount;
+                    await saveSettingToSupabase('serverStatus', newStatus);
+                    await saveSettingToSupabase('onlineCount', newCount);
+                    if (window.location.hash === '#/home' || window.location.hash === '') router();
+                }
+            } catch (e) { console.error('mcstatus error:', e); }
+        }
+
         function initMouseGlow() {
-            const selectors = '.panel, .pcard, .mgmt-card, .staff-row, .status-cell, .rules-content, .news-item, .server-monitor';
+            const selectors = '.panel, .pcard, .mgmt-card, .staff-row, .status-cell, .rules-content, .server-monitor';
             const glowElements = document.querySelectorAll(selectors);
             glowElements.forEach(el => {
                 if (!el.classList.contains('mouse-glow')) el.classList.add('mouse-glow');
-                // Чтобы не вешать слушатель дважды
                 if (!el.dataset.glowInit) {
                     el.dataset.glowInit = 'true';
                     el.addEventListener('mousemove', (e) => {
