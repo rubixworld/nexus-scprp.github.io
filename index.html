@@ -617,15 +617,74 @@
         function renderDownload(container) {
             container.innerHTML = `
                 <h1 class="mb-20">Скачать лаунчер</h1>
+                <p class="muted mb-20" style="max-width: 600px;">Официальный лаунчер Nexus • SCP-RP для входа на сервер. Скачай, установи — и играй.</p>
+
                 <div class="grid-3 mb-20">
-                    <div class="panel mouse-glow"><div class="mono muted mb-20">Версия</div><div class="big" style="font-size:1.5rem; color:#fff;">1.0.0</div></div>
-                    <div class="panel mouse-glow"><div class="mono muted mb-20">Размер</div><div class="big" style="font-size:1.5rem; color:#fff;">~50 МБ</div></div>
-                    <div class="panel mouse-glow"><div class="mono muted mb-20">Платформа</div><div class="big" style="font-size:1.5rem; color:#fff;">Windows</div></div>
+                    <div class="panel mouse-glow" style="margin-bottom: 0;">
+                        <div class="mono muted mb-20">Версия</div>
+                        <div class="big" style="font-size:1.5rem; color:#fff;">1.0.0</div>
+                    </div>
+                    <div class="panel mouse-glow" style="margin-bottom: 0;">
+                        <div class="mono muted mb-20">Размер</div>
+                        <div class="big" style="font-size:1.5rem; color:#fff;">~50 МБ</div>
+                    </div>
+                    <div class="panel mouse-glow" style="margin-bottom: 0;">
+                        <div class="mono muted mb-20">Платформа</div>
+                        <div class="big" style="font-size:1.5rem; color:#fff;">Windows 10/11</div>
+                    </div>
                 </div>
+
+                <div class="panel mouse-glow mb-20" style="text-align: center; padding: 50px 20px; background: linear-gradient(180deg, rgba(88,153,249,0.08) 0%, transparent 100%);">
+                    <h2 style="border: none; margin-bottom: 30px; color: #fff;">Готовы начать?</h2>
+                    <a href="NexusLauncher-Setup.exe" download class="btn btn-primary" style="padding: 20px 50px; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 12px;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        СКАЧАТЬ ЛАУНЧЕР
+                    </a>
+                    <div class="mono muted mt-15" style="font-size: 12px; letter-spacing: 1px;">Windows · .exe</div>
+                </div>
+
+                <h2>// Как установить</h2>
+                <div class="grid-4 mb-20">
+                    <div class="panel mouse-glow">
+                        <div class="mono" style="color: var(--accent); margin-bottom: 5px;">ШАГ 01</div>
+                        <h4 style="color: #fff; margin-bottom: 10px;">Скачай .exe</h4>
+                        <p class="muted" style="font-size: 13px; margin-bottom: 0;">Нажми на кнопку выше и сохрани файл на свой компьютер.</p>
+                    </div>
+                    <div class="panel mouse-glow">
+                        <div class="mono" style="color: var(--accent); margin-bottom: 5px;">ШАГ 02</div>
+                        <h4 style="color: #fff; margin-bottom: 10px;">Запусти установщик</h4>
+                        <p class="muted" style="font-size: 13px; margin-bottom: 0;">Открой файл и следуй инструкциям на экране.</p>
+                    </div>
+                    <div class="panel mouse-glow">
+                        <div class="mono" style="color: var(--accent); margin-bottom: 5px;">ШАГ 03</div>
+                        <h4 style="color: #fff; margin-bottom: 10px;">Авторизуйся</h4>
+                        <p class="muted" style="font-size: 13px; margin-bottom: 0;">Введи свой игровой ник или данные аккаунта.</p>
+                    </div>
+                    <div class="panel mouse-glow">
+                        <div class="mono" style="color: var(--accent); margin-bottom: 5px;">ШАГ 04</div>
+                        <h4 style="color: #fff; margin-bottom: 10px;">Заходи и играй</h4>
+                        <p class="muted" style="font-size: 13px; margin-bottom: 0;">Дождись загрузки файлов и подключайся к серверу!</p>
+                    </div>
+                </div>
+
+                <div class="rules-punish mb-20" style="border-left-color: var(--yellow); background: rgba(241, 196, 15, 0.05); font-size: 13px;">
+                    <b>⚠️ Важно:</b> если антивирус или Windows SmartScreen ругается на лаунчер — это <b>ложное срабатывание</b>. Нажми «Подробнее» → «Выполнить в любом случае». Лаунчер безопасен.
+                </div>
+
+                <h2>// Частые проблемы (FAQ)</h2>
                 <div class="panel mouse-glow">
-                    <h2>Скачать установщик</h2>
-                    <a href="#" class="btn btn-primary" style="padding:20px 40px; font-size:1.1rem;" onclick="alert('Ссылка появится позже')">⬇ СКАЧАТЬ ЛАУНЧЕР</a>
-                    <div class="rules-punish mt-15">⚠ Если антивирус ругается — это ложное срабатывание.</div>
+                    <div class="rules-sub">
+                        <div class="rules-sub-title">Лаунчер не запускается</div>
+                        <p>Проверь, что установлена <b>Java 17</b> или новее. Скачать Java можно с официального сайта Oracle или Adoptium.</p>
+                    </div>
+                    <div class="rules-sub">
+                        <div class="rules-sub-title">Антивирус блокирует запуск</div>
+                        <p>Добавь папку с лаунчером в исключения антивируса. Также попробуй нажать правой кнопкой по .exe → «Свойства» → поставь галочку «Разблокировать» → ОК.</p>
+                    </div>
+                    <div class="rules-sub" style="margin-bottom: 0;">
+                        <div class="rules-sub-title">Не подключается к серверу</div>
+                        <p style="margin-bottom: 0;">Проверь IP-адрес на странице <b>«Главная»</b>. Если сервер на тех. работах — просто зайди позже.</p>
+                    </div>
                 </div>
             `;
         }
