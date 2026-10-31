@@ -384,16 +384,7 @@
         const SUPABASE_URL = 'https://nexus-scprp-site.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4aG5ya2V4anB5dnZnaXZrdGprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0MzE4ODcsImV4cCI6MjEwOTAwNzg4N30.O_R-M2KqG4-fqYNP2qBcaICsqCFHgLVZKV5ghsDRMFg';
         
-        let supabase = null;
-        try {
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            } else {
-                console.error("Библиотека Supabase не загрузилась! Проверьте интернет или блокировщик рекламы.");
-            }
-        } catch (e) {
-            console.error("Ошибка подключения к Supabase (проверьте URL и KEY):", e);
-        }
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // ==========================================
         // БАЗА ДАННЫХ
