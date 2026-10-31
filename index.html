@@ -901,38 +901,49 @@
         function execCmd(command, value = null) { document.execCommand(command, false, value); }
 
         // Умный переключатель режима HTML
+        // Умный переключатель режима HTML
         function toggleHtmlMode(btn) {
             const wrap = btn.closest('.wysiwyg-wrap');
             const editor = wrap.querySelector('.wysiwyg-editor');
-            const isVisual = editor.getAttribute('contenteditable') === 'true';
-            
-            if (isVisual) {
-                // Включаем режим кода
-                editor.setAttribute('contenteditable', 'false');
+            const isCodeMode = btn.getAttribute('data-active') === 'true';
+
+            if (!isCodeMode) {
+                // ВКЛЮЧАЕМ РЕЖИМ КОДА
+                btn.setAttribute('data-active', 'true');
                 editor.style.fontFamily = 'var(--font-mono)';
                 editor.style.color = '#a5d6ff';
+                // Превращаем HTML в текст, чтобы его можно было редактировать как код
                 editor.textContent = editor.innerHTML; 
                 btn.style.background = 'var(--accent)';
                 btn.style.color = '#fff';
             } else {
-                // Включаем визуальный режим
-                let rawHTML = editor.textContent;
-                
-                // Если вставлен целый JSON файл (как на твоем скрине) — вытаскиваем текст
-                if (rawHTML.trim().startsWith('{') && rawHTML.trim().endsWith('}')) {
+                // ВКЛЮЧАЕМ ВИЗУАЛЬНЫЙ РЕЖИМ (ПАРСИМ)
+                btn.setAttribute('data-active', 'false');
+                let rawText = editor.textContent;
+
+                // 1. Если вставлен JSON файл целиком (как на твоем скрине)
+                if (rawText.trim().startsWith('{') && rawText.trim().endsWith('}')) {
                     try {
-                        const parsed = JSON.parse(rawHTML);
-                        const key = Object.keys(parsed)[0]; 
-                        if (parsed[key]) rawHTML = parsed[key];
+                        const parsed = JSON.parse(rawText);
+                        const key = Object.keys(parsed)[0]; // берем ключ discord, rp или staff
+                        if (parsed[key]) rawText = parsed[key];
                     } catch (e) {
                         console.log("Это не JSON, обрабатываем как обычный HTML");
                     }
                 }
+
+                // 2. Расшифровываем дважды экранированные символы (&amp;lt; -> &lt; -> <)
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = rawText;
+                let decoded = tempDiv.textContent || tempDiv.innerText || "";
                 
-                editor.setAttribute('contenteditable', 'true');
+                tempDiv.innerHTML = decoded;
+                decoded = tempDiv.innerHTML;
+
+                // 3. Возвращаем визуал
                 editor.style.fontFamily = 'inherit';
                 editor.style.color = '#fff';
-                editor.innerHTML = rawHTML;
+                editor.innerHTML = decoded; // Рендерим чистый HTML
                 btn.style.background = '';
                 btn.style.color = '';
             }
