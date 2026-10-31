@@ -850,6 +850,27 @@
             alert('Настройки сохранены!');
         }
 
+        // Перехват горячих клавиш для редакторов
+        document.addEventListener('keydown', function(e) {
+            const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+            const isMod = isMac ? e.metaKey : e.ctrlKey;
+            
+            // Если фокус находится внутри редактора
+            if (e.target.classList.contains('wysiwyg-editor')) {
+                if (isMod && e.key.toLowerCase() === 'z') {
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        document.execCommand('redo', false, null);
+                    } else {
+                        document.execCommand('undo', false, null);
+                    }
+                } else if (isMod && e.key.toLowerCase() === 'y') {
+                    e.preventDefault();
+                    document.execCommand('redo', false, null);
+                }
+            }
+        });
+        
         function execCmd(command, value = null) {
             document.execCommand(command, false, value);
         }
