@@ -285,6 +285,32 @@
         .mnt-progress i { display: block; height: 100%; width: 40%; background: var(--yellow); animation: slide 2s infinite linear; }
         @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
 
+        /* Стили для тостов (уведомлений) */
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; }
+        .toast {
+            background: var(--bg-panel); border: 1px solid var(--accent);
+            color: #fff; padding: 14px 20px; border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px);
+            animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            display: flex; align-items: center; gap: 12px;
+            font-size: 0.9rem; min-width: 280px; border-left: 4px solid var(--accent);
+        }
+        .toast.error { border-color: var(--red); border-left-color: var(--red); }
+        .toast.hide { animation: slideOutRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        @keyframes slideInRight { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+
+        /* Кнопка обновления */
+        .btn-refresh {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            color: var(--text-muted); border-radius: 6px; width: 30px; height: 30px;
+            display: inline-flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: all 0.3s; margin-left: 10px;
+        }
+        .btn-refresh:hover { color: var(--accent); border-color: var(--accent); background: rgba(88,153,249,0.1); }
+        .btn-refresh.spinning svg { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
         @media (max-width: 900px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
@@ -360,9 +386,11 @@
     <main class="main-content">
         <header class="topbar">
             <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
-            <div class="topbar-info mono" style="display:flex; gap:20px; font-size:0.8rem;">
+            <div class="topbar-info mono" style="display:flex; align-items:center; background: rgba(0,0,0,0.2); padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); font-size:0.8rem;">
                 <span>[ NODE: NEXUS-01 ]</span>
-                <span>[ SECURITY: LEVEL-4 ]</span>
+                <button class="btn-refresh" onclick="refreshStatus()" title="Обновить статус">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                </button>
             </div>
             <a href="#/download" class="btn btn-outline">СКАЧАТЬ ЛАУНЧЕР</a>
         </header>
@@ -380,6 +408,7 @@
     </div>
 
     <div class="modal-overlay" id="loginModal">
+    <div class="toast-container" id="toastContainer"></div>
         <div class="modal-box">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h3 class="mono" style="color: var(--accent); margin:0;">> ACCESS TERMINAL</h3>
@@ -471,23 +500,25 @@
         function renderMonitor() {
             const s = DB.settings.serverStatus;
             const h = DB.settings.hostingStatus;
-            let color = 'var(--green)', label = 'SYSTEM_NOMINAL', code = '<span class="c-key">server:</span> <span class="c-val">ONLINE</span>';
+            let color = 'var(--green)', label = 'HOSTING_SYSTEM';
             
-            if (h === 'UNPAID' || s === 'OFFLINE') { color = 'var(--red)'; label = 'SYSTEM_OFFLINE'; code = '<span class="c-key">server:</span> <span class="c-val">OFFLINE</span>'; }
-            else if (s === 'MAINTENANCE') { color = 'var(--yellow)'; label = 'MAINTENANCE'; code = '<span class="c-key">server:</span> <span class="c-val">MAINTENANCE</span>'; }
+            if (h === 'UNPAID' || s === 'OFFLINE') { color = 'var(--red)'; label = 'HOSTING_OFFLINE'; }
+            else if (s === 'MAINTENANCE') { color = 'var(--yellow)'; label = 'MAINTENANCE'; }
 
             return `
                 <div class="server-monitor mouse-glow" style="border-top: 3px solid ${color};">
                     <div class="monitor-head"><span class="mono">NEXUS_NETWORK</span><span class="mono" style="color:${color}">● LIVE</span></div>
-                    <div class="monitor-body">
-                        <div class="pulse-wrap"><div class="pulse-ring" style="border-color:${color}"></div><div class="pulse-dot" style="background:${color}; box-shadow:0 0 30px ${color}"></div></div>
-                        <div class="monitor-label mono" style="color:${color}">${label}</div>
-                        <div class="monitor-code mono" style="border-left-color:${color}">${code}</div>
+                    <div class="monitor-body" style="padding: 50px 20px;">
+                        <div class="pulse-wrap" style="width: 160px; height: 160px;">
+                            <div class="pulse-ring" style="border-color:${color}"></div>
+                            <div class="pulse-dot" style="background:${color}; box-shadow:0 0 40px ${color}; width: 90px; height: 90px;"></div>
+                        </div>
+                        <div class="monitor-label mono" style="color:${color}; font-size: 1.4rem; margin-top: 15px;">${label}</div>
                     </div>
                     <div class="monitor-stats">
                         <div class="mstat"><div class="mk mono">Server</div><div class="mv mono">${DB.settings.ip}</div></div>
                         <div class="mstat"><div class="mk mono">Version</div><div class="mv mono">${DB.settings.version}</div></div>
-                        <div class="mstat"><div class="mk mono">Access</div><div class="mv mono">PUBLIC</div></div>
+                        <div class="mstat"><div class="mk mono">Access</div><div class="mv mono">INTERNAL</div></div>
                     </div>
                 </div>
             `;
@@ -915,14 +946,14 @@
             const tag = document.getElementById('staffTag').value.trim();
             const level = document.getElementById('staffLevel').value.trim();
 
-            if (!name || !role) return alert('Заполните имя и должность!');
+            if (!name || !role) return showToast('Заполните имя и должность!');
 
             // Добавляем в массив
             DB.staff.push({ name, role, section, tag, level });
             
             // Сохраняем в базу
             await saveSettingToSupabase('staff_data', DB.staff);
-            alert('Сотрудник добавлен!');
+            showToast('Сотрудник добавлен!');
             
             // Перерисовываем админку, чтобы обновить список, и оставляем открытой вкладку Персонал
             renderAdmin(document.getElementById('app-content'));
@@ -970,7 +1001,7 @@
             for (let key in DB.settings) { await saveSettingToSupabase(key, DB.settings[key]); }
             applySettings();
             if (DB.settings.autoStatus) updateServerStatus();
-            alert('Настройки сохранены в облако!');
+            showToast('Настройки сохранены в облако!');
         }
 
         async function saveSettingToSupabase(key, value) {
@@ -985,17 +1016,17 @@
                 if(error) console.error(error);
                 DB.rules[key] = rules[key]; 
             }
-            alert('Правила сохранены в облако!');
+            showToast('Правила сохранены в облако!');
         }
 
         async function createNews() {
             const title = document.getElementById('newsTitle').value;
             const content = document.getElementById('newsContent').value;
             const image = document.getElementById('newsImage').value;
-            if (!title || !content) return alert('Заполните поля!');
+            if (!title || !content) return showToast('Заполните поля!', 'error');
             const date = new Date().toLocaleDateString('ru-RU');
             const { data, error } = await db.from('news').insert([{ title, content, image, date }]).select();
-            if (error) return alert('Ошибка: ' + error.message);
+            if (error) return showToast('Ошибка: ' + error.message, 'error');
             DB.news.unshift(data[0]);
             router();
             switchTab('tab-news', document.querySelector('.admin-tab'));
@@ -1004,7 +1035,7 @@
         async function deleteNews(id) {
             if (!confirm('Удалить?')) return;
             const { error } = await db.from('news').delete().eq('id', id);
-            if (error) return alert('Ошибка: ' + error.message);
+            if (error) return showToast('Ошибка: ' + error.message);
             DB.news = DB.news.filter(n => n.id !== id);
             router();
             switchTab('tab-news', document.querySelector('.admin-tab'));
@@ -1099,7 +1130,7 @@
             const selection = window.getSelection();
             if (!selection.rangeCount) return;
             const range = selection.getRangeAt(0);
-            if (range.collapsed) return alert('Выделите текст!');
+            if (range.collapsed) return showToast('Выделите текст!');
             const div = document.createElement('div');
             div.className = className;
             div.appendChild(range.extractContents());
@@ -1136,6 +1167,41 @@
             } catch (e) { console.error('mcstatus error:', e); }
         }
 
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            
+            const icon = type === 'error' ? '⚠️' : '✅';
+            toast.innerHTML = `<span style="font-size: 1.2rem;">${icon}</span> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        async function refreshStatus() {
+            const btn = document.querySelector('.btn-refresh');
+            if(btn) btn.classList.add('spinning');
+            
+            try {
+                if (DB.settings.autoStatus) {
+                    await updateServerStatus();
+                }
+                router(); // Перерисовываем интерфейс с новыми данными
+                showToast('Данные успешно обновлены');
+            } catch(e) {
+                showToast('Ошибка при обновлении', 'error');
+            }
+            
+            setTimeout(() => { if(btn) btn.classList.remove('spinning'); }, 600);
+        }
+        
         function initMouseGlow() {
             const selectors = '.panel, .pcard, .mgmt-card, .staff-row, .status-cell, .rules-content, .server-monitor';
             const glowElements = document.querySelectorAll(selectors);
