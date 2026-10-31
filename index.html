@@ -732,9 +732,12 @@
                     </div>
                 </div>
 
+                <!-- ВКЛАДКА: ПРАВИЛА (WYSIWYG) -->
                 <div class="admin-section" id="tab-rules">
                     <div class="panel mouse-glow">
                         <h2>// Редактор правил</h2>
+                        <p class="muted mb-20">Выделяйте текст и используйте панель инструментов. Или нажмите <b>&lt;/&gt;</b>, чтобы вставить чистый HTML-код.</p>
+                        
                         <div class="wysiwyg-wrap">
                             <label class="mono muted mb-20" style="display:block;">Правила Discord</label>
                             <div class="wysiwyg-toolbar">
@@ -745,9 +748,11 @@
                                 <button onclick="formatBlock('rules-intro')" style="color: var(--accent);">Вступление</button>
                                 <button onclick="formatBlock('rules-section-title')">Глава</button>
                                 <button onclick="formatBlock('rules-punish')" style="color: var(--yellow);">Плашка</button>
+                                <button onclick="toggleHtmlMode(this)" style="background: rgba(255,255,255,0.1); font-family: monospace; margin-left: auto;" title="Режим HTML">&lt;/&gt;</button>
                             </div>
                             <div id="rulesDiscord" class="wysiwyg-editor" contenteditable="true">${DB.rules.discord}</div>
                         </div>
+
                         <div class="wysiwyg-wrap">
                             <label class="mono muted mb-20" style="display:block;">Правила Minecraft / RP</label>
                             <div class="wysiwyg-toolbar">
@@ -758,9 +763,11 @@
                                 <button onclick="formatBlock('rules-intro')" style="color: var(--accent);">Вступление</button>
                                 <button onclick="formatBlock('rules-section-title')">Глава</button>
                                 <button onclick="formatBlock('rules-punish')" style="color: var(--yellow);">Плашка</button>
+                                <button onclick="toggleHtmlMode(this)" style="background: rgba(255,255,255,0.1); font-family: monospace; margin-left: auto;" title="Режим HTML">&lt;/&gt;</button>
                             </div>
                             <div id="rulesRp" class="wysiwyg-editor" contenteditable="true">${DB.rules.rp}</div>
                         </div>
+
                         <div class="wysiwyg-wrap">
                             <label class="mono muted mb-20" style="display:block;">Правила персонала</label>
                             <div class="wysiwyg-toolbar">
@@ -771,9 +778,11 @@
                                 <button onclick="formatBlock('rules-intro')" style="color: var(--accent);">Вступление</button>
                                 <button onclick="formatBlock('rules-section-title')">Глава</button>
                                 <button onclick="formatBlock('rules-punish')" style="color: var(--yellow);">Плашка</button>
+                                <button onclick="toggleHtmlMode(this)" style="background: rgba(255,255,255,0.1); font-family: monospace; margin-left: auto;" title="Режим HTML">&lt;/&gt;</button>
                             </div>
                             <div id="rulesStaff" class="wysiwyg-editor" contenteditable="true">${DB.rules.staff}</div>
                         </div>
+                        
                         <button class="btn btn-primary mt-15" onclick="saveRules()">СОХРАНИТЬ ПРАВИЛА</button>
                     </div>
                 </div>
@@ -891,6 +900,44 @@
         
         function execCmd(command, value = null) { document.execCommand(command, false, value); }
 
+        // Умный переключатель режима HTML
+        function toggleHtmlMode(btn) {
+            const wrap = btn.closest('.wysiwyg-wrap');
+            const editor = wrap.querySelector('.wysiwyg-editor');
+            const isVisual = editor.getAttribute('contenteditable') === 'true';
+            
+            if (isVisual) {
+                // Включаем режим кода
+                editor.setAttribute('contenteditable', 'false');
+                editor.style.fontFamily = 'var(--font-mono)';
+                editor.style.color = '#a5d6ff';
+                editor.textContent = editor.innerHTML; 
+                btn.style.background = 'var(--accent)';
+                btn.style.color = '#fff';
+            } else {
+                // Включаем визуальный режим
+                let rawHTML = editor.textContent;
+                
+                // Если вставлен целый JSON файл (как на твоем скрине) — вытаскиваем текст
+                if (rawHTML.trim().startsWith('{') && rawHTML.trim().endsWith('}')) {
+                    try {
+                        const parsed = JSON.parse(rawHTML);
+                        const key = Object.keys(parsed)[0]; 
+                        if (parsed[key]) rawHTML = parsed[key];
+                    } catch (e) {
+                        console.log("Это не JSON, обрабатываем как обычный HTML");
+                    }
+                }
+                
+                editor.setAttribute('contenteditable', 'true');
+                editor.style.fontFamily = 'inherit';
+                editor.style.color = '#fff';
+                editor.innerHTML = rawHTML;
+                btn.style.background = '';
+                btn.style.color = '';
+            }
+        }
+        
         function formatBlock(className) {
             const selection = window.getSelection();
             if (!selection.rangeCount) return;
